@@ -1,0 +1,210 @@
+.hero {
+  background: #ffffff;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.hero__content {
+  display: grid;
+  gap: 8px;
+  width: min(100%, 1040px);
+  margin: 0 auto;
+  padding: 28px 16px 20px;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1 {
+  max-width: 760px;
+  color: var(--color-text);
+  font-size: 2rem;
+  line-height: 1.08;
+}
+
+h2 {
+  color: var(--color-text);
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+
+.section-label {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.calculator {
+  border-bottom: 1px solid var(--color-border);
+  background: #ffffff;
+}
+
+.calculator-form {
+  display: grid;
+  gap: 14px;
+  width: min(100%, 1040px);
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.quantity-field {
+  display: grid;
+  gap: 8px;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 750;
+}
+
+.quantity-field input {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px;
+  padding: 0 14px;
+  background: var(--color-surface-subtle);
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.quantity-field input:focus {
+  border-color: var(--color-primary);
+  outline: 3px solid rgba(219, 39, 119, 0.16);
+}
+
+.primary-action {
+  min-height: 48px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 18px;
+  background: var(--color-primary);
+  color: #ffffff;
+  font-weight: 850;
+}
+
+.primary-action:disabled {
+  cursor: not-allowed;
+  background: #a9b7c2;
+}
+
+.home-content {
+  display: grid;
+  gap: 16px;
+  width: min(100%, 1040px);
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.reference-card {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(22, 32, 51, 0.05);
+}
+
+.muted {
+  margin-top: 6px;
+  color: var(--color-text-muted);
+  font-weight: 800;
+}
+
+.nutrition-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.nutrition-grid div {
+  border-radius: 8px;
+  padding: 10px;
+  background: var(--color-bg);
+}
+
+dt {
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+dd {
+  margin: 3px 0 0;
+  color: var(--color-text);
+  font-weight: 850;
+}
+
+.state-message {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 14px;
+  background: #ffffff;
+  color: var(--color-text-secondary);
+  font-weight: 750;
+}
+
+.state-message--loading {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-bg);
+  color: var(--color-primary-dark);
+}
+
+.state-message--error {
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.results-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.section-header {
+  display: grid;
+  gap: 4px;
+}
+
+.substitutes-section,
+.comparison-section {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+@media (min-width: 640px) {
+  .calculator-form {
+    grid-template-columns: minmax(0, 1fr) 180px auto;
+    align-items: end;
+    padding: 20px 32px;
+  }
+
+  .hero__content {
+    padding: 40px 32px 26px;
+  }
+
+  h1 {
+    font-size: 2.6rem;
+  }
+
+  .home-content {
+    padding: 24px 32px 32px;
+  }
+
+  .nutrition-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 900px) {
+  .results-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 0.85fr);
+    gap: 24px;
+  }
+}

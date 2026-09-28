@@ -1,0 +1,46 @@
+<section class="patient-diet-page">
+  <header class="page-header">
+    <div>
+      <p class="section-label">Paciente</p>
+      <h1>Minha dieta</h1>
+      <p *ngIf="patient">{{ patient.name }}</p>
+    </div>
+    <button class="print-action" type="button" (click)="print()" *ngIf="mealPlan">
+      Imprimir
+    </button>
+  </header>
+
+  <div class="state-message state-message--loading" role="status" aria-live="polite" *ngIf="state === 'loading'">
+    Carregando dieta...
+  </div>
+
+  <div class="state-message state-message--error" role="status" aria-live="polite" *ngIf="state === 'error'">
+    {{ message }}
+  </div>
+
+  <section class="empty-state panel" *ngIf="state === 'idle' && !mealPlan">
+    <p>Nenhuma dieta ativa foi vinculada a sua conta ainda.</p>
+  </section>
+
+  <ng-container *ngIf="mealPlan as plan">
+    <section class="meal-list">
+      <article class="panel meal-card" *ngFor="let meal of plan.meals; trackBy: trackMeal">
+        <header class="meal-card__header">
+          <p class="section-label">{{ meal.timeLabel || 'Sem horario' }}</p>
+          <h2>{{ meal.name }}</h2>
+        </header>
+
+        <div class="empty-meal" *ngIf="meal.items.length === 0">
+          Nenhum alimento informado nesta refeicao.
+        </div>
+
+        <div class="item-list" *ngIf="meal.items.length > 0">
+          <article class="meal-item" *ngFor="let item of meal.items">
+            <h3>{{ item.food.name }}</h3>
+            <p>{{ item.quantity | number:'1.0-2' }} {{ item.unit }}</p>
+          </article>
+        </div>
+      </article>
+    </section>
+  </ng-container>
+</section>

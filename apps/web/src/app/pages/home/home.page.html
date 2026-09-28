@@ -1,0 +1,107 @@
+<section class="hero">
+  <div class="hero__content">
+    <p class="section-label">Smart Nutri</p>
+    <h1>Calcule substituições por equivalência nutricional.</h1>
+  </div>
+</section>
+
+<section class="calculator">
+  <form class="calculator-form" (submit)="calculateSubstitutions(); $event.preventDefault()">
+    <app-food-search (foodSelected)="handleFoodSelected($event)" />
+
+    <label class="quantity-field">
+      <span>Quantidade em gramas</span>
+      <input
+        type="number"
+        min="1"
+        step="1"
+        inputmode="decimal"
+        [formControl]="quantityControl"
+      />
+    </label>
+
+    <button class="primary-action" type="submit" [disabled]="state === 'loading' || !hasSelectedFood">
+      Calcular substituições
+    </button>
+  </form>
+</section>
+
+<section class="home-content">
+  <article class="reference-card" *ngIf="selectedFood">
+    <div>
+      <p class="section-label">Alimento referência</p>
+      <h2>{{ referenceName }}</h2>
+      <p class="muted">{{ referenceQuantity }} g</p>
+    </div>
+
+    <dl class="nutrition-grid" *ngIf="referenceNutrients as nutrients">
+      <div>
+        <dt>kcal</dt>
+        <dd>{{ formatValue(nutrients.kcal, 'kcal') }}</dd>
+      </div>
+      <div>
+        <dt>carbo</dt>
+        <dd>{{ formatValue(nutrients.carbs, 'g') }}</dd>
+      </div>
+      <div>
+        <dt>proteina</dt>
+        <dd>{{ formatValue(nutrients.protein, 'g') }}</dd>
+      </div>
+      <div>
+        <dt>gordura</dt>
+        <dd>{{ formatValue(nutrients.fat, 'g') }}</dd>
+      </div>
+      <div>
+        <dt>fibra</dt>
+        <dd>{{ formatValue(nutrients.fiber, 'g') }}</dd>
+      </div>
+    </dl>
+  </article>
+
+  <div class="state-message state-message--loading" role="status" aria-live="polite" *ngIf="state === 'loading'">
+    Calculando substituições...
+  </div>
+
+  <div class="state-message state-message--error" role="status" aria-live="polite" *ngIf="state === 'error'">
+    {{ errorMessage }}
+  </div>
+
+  <div class="state-message" role="status" aria-live="polite" *ngIf="state === 'empty'">
+    Nenhuma substituição encontrada dentro dos critérios nutricionais.
+  </div>
+
+  <section class="results-grid" *ngIf="state === 'success' && calculation">
+    <section class="substitutes-section">
+      <div class="section-header">
+        <p class="section-label">Substitutos</p>
+        <h2>Melhores opções</h2>
+      </div>
+
+      <div class="state-message" role="status" aria-live="polite" *ngIf="canManagePreferences && preferenceMessage">
+        {{ preferenceMessage }}
+      </div>
+
+      <app-substitution-card
+        *ngFor="let substitute of calculation.substitutes; let index = index"
+        [substitution]="substitute"
+        [resultIndex]="index"
+        [resultCount]="calculation.substitutes.length"
+        [equivalenceNutrient]="calculation.equivalence.nutrient"
+        [equivalenceLabel]="calculation.equivalence.label"
+        [showActions]="canManagePreferences"
+        (substitutionSelected)="selectSubstitute($event)"
+        (favoriteSelected)="favoriteSubstitute($event)"
+        (blockSelected)="blockSubstitute($event)"
+      />
+    </section>
+
+    <section class="comparison-section" *ngIf="selectedSubstitute">
+      <div class="section-header">
+        <p class="section-label">Comparativo</p>
+        <h2>{{ selectedSubstitute.food.name }}</h2>
+      </div>
+
+      <app-nutrition-comparison-table [rows]="comparisonRows" />
+    </section>
+  </section>
+</section>

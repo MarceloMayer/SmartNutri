@@ -1,0 +1,128 @@
+<section class="users-page">
+  <header class="page-header">
+    <p class="section-label">Administração</p>
+    <h1>Usuários</h1>
+  </header>
+
+  <section class="panel">
+    <div class="panel__header">
+      <div>
+        <p class="section-label">{{ formMode === 'edit' ? 'Editar usuário' : 'Novo usuário' }}</p>
+        <h2>{{ formMode === 'edit' ? selectedUser?.name : 'Cadastro' }}</h2>
+      </div>
+
+      <button class="secondary-action" type="button" (click)="startCreate()">
+        Novo
+      </button>
+    </div>
+
+    <form
+      class="user-form"
+      [class.user-form--with-status]="formMode === 'edit'"
+      (submit)="saveUser(); $event.preventDefault()"
+    >
+      <label class="field">
+        <span>Nome</span>
+        <input type="text" [formControl]="nameControl" />
+        <small *ngIf="showNameError">Informe o nome.</small>
+      </label>
+
+      <label class="field">
+        <span>Email</span>
+        <input type="email" [formControl]="emailControl" />
+        <small *ngIf="showEmailError">Informe um email válido.</small>
+      </label>
+
+      <label class="field">
+        <span>Role</span>
+        <select [formControl]="roleControl">
+          <option *ngFor="let role of roleOptions" [value]="role">
+            {{ formatRole(role) }}
+          </option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Senha</span>
+        <input
+          type="password"
+          autocomplete="new-password"
+          [formControl]="passwordControl"
+          [placeholder]="formMode === 'edit' ? 'Não alterada aqui' : ''"
+        />
+        <small *ngIf="showPasswordError">Use pelo menos 6 caracteres.</small>
+      </label>
+
+      <label class="field" *ngIf="formMode === 'edit'">
+        <span>Status</span>
+        <select [formControl]="statusControl">
+          <option value="active">Ativo</option>
+          <option value="inactive">Inativo</option>
+        </select>
+      </label>
+
+      <button class="primary-action" type="submit" [disabled]="formState === 'loading'">
+        {{ formMode === 'edit' ? 'Salvar usuário' : 'Criar usuário' }}
+      </button>
+    </form>
+
+    <div
+      class="state-message"
+      role="status"
+      aria-live="polite"
+      [class.state-message--error]="formState === 'error' || state === 'error'"
+      *ngIf="message"
+    >
+      {{ message }}
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel__header">
+      <div>
+        <p class="section-label">Lista</p>
+        <h2>Usuários cadastrados</h2>
+      </div>
+    </div>
+
+    <div class="state-message state-message--loading" role="status" aria-live="polite" *ngIf="state === 'loading'">
+      Carregando usuários...
+    </div>
+
+    <div class="user-list">
+      <article class="user-row" *ngFor="let user of users">
+        <div>
+          <h3>{{ user.name }}</h3>
+          <p>{{ user.email }}</p>
+          <div class="user-row__badges">
+            <span class="role-badge">{{ formatRole(user.role) }}</span>
+            <span
+              class="status-badge"
+              [class.status-badge--inactive]="user.status === 'inactive'"
+            >
+              {{ formatStatus(user.status) }}
+            </span>
+          </div>
+        </div>
+
+        <div class="user-row__actions">
+          <button
+            class="secondary-action"
+            type="button"
+            (click)="toggleUserStatus(user)"
+            [disabled]="rowActionLoadingId === user.id"
+          >
+            {{ user.status === 'active' ? 'Desativar' : 'Ativar' }}
+          </button>
+          <button class="secondary-action" type="button" (click)="startEdit(user)">
+            Editar
+          </button>
+        </div>
+      </article>
+
+      <p class="empty-state" *ngIf="state === 'idle' && users.length === 0">
+        Nenhum usuário cadastrado ainda.
+      </p>
+    </div>
+  </section>
+</section>

@@ -1,0 +1,45 @@
+<section class="login-page">
+  <form class="login-form" (submit)="login(); $event.preventDefault()">
+    <div class="login-form__header">
+      <p>Smart Nutri</p>
+      <h1>Entrar</h1>
+    </div>
+
+    <label class="field">
+      <span>Email</span>
+      <input
+        type="email"
+        autocomplete="email"
+        [formControl]="emailControl"
+      />
+      <small *ngIf="showEmailError">Informe um email válido.</small>
+    </label>
+
+    <label class="field">
+      <span>Senha</span>
+      <input
+        type="password"
+        autocomplete="current-password"
+        [formControl]="passwordControl"
+      />
+      <small *ngIf="showPasswordError">Informe a senha.</small>
+    </label>
+
+    <div class="state-message state-message--error" role="status" aria-live="polite" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <button class="primary-action" type="submit" [disabled]="isSubmitting">
+      {{ isSubmitting ? 'Entrando...' : 'Entrar' }}
+    </button>
+
+    <p class="login-form__footer">
+      <a routerLink="/esqueci-senha">Esqueci minha senha</a>
+    </p>
+
+    <p class="login-form__footer">
+      Novo por aqui?
+      <a routerLink="/cadastro" [queryParamsHandling]="'preserve'">Criar conta</a>
+    </p>
+  </form>
+</section>

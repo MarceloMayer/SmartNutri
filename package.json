@@ -1,0 +1,17 @@
+{
+  "name": "smart-nutri",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/web",
+    "apps/api"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace @smart-nutri/web",
+    "dev:api": "npm run dev --workspace @smart-nutri/api",
+    "migrate:api": "npm run migrate --workspace @smart-nutri/api",
+    "import:taco": "npm --workspace @smart-nutri/api run import:taco --",
+    "build": "npm run build --workspaces",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  }
+}

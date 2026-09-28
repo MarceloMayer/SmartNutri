@@ -1,0 +1,237 @@
+<section class="patient-detail">
+  <header class="page-header">
+    <a class="back-link" routerLink="/nutritionist/patients">Pacientes</a>
+    <p class="section-label">Paciente</p>
+    <h1>{{ patient?.name || 'Detalhe do paciente' }}</h1>
+  </header>
+
+  <div
+    class="state-message"
+    role="status"
+    aria-live="polite"
+    [class.state-message--error]="pageState === 'error' || actionState === 'error'"
+    *ngIf="message"
+  >
+    {{ message }}
+  </div>
+
+  <section class="panel" *ngIf="patient">
+    <div class="panel__header">
+      <div>
+        <p class="section-label">Cadastro</p>
+        <h2>Dados do paciente</h2>
+      </div>
+      <button class="danger-action" type="button" (click)="confirmDeletePatient()" [disabled]="actionState === 'loading'">
+        Remover paciente
+      </button>
+    </div>
+
+    <form class="patient-form" (submit)="savePatient(); $event.preventDefault()">
+      <label class="field">
+        <span>Nome</span>
+        <input type="text" [formControl]="patientNameControl" />
+      </label>
+
+      <label class="field">
+        <span>Email</span>
+        <input type="email" [formControl]="patientEmailControl" />
+      </label>
+
+      <label class="field">
+        <span>Telefone</span>
+        <input
+          type="tel"
+          inputmode="numeric"
+          maxlength="15"
+          appInputMask="phone"
+          [formControl]="patientPhoneControl"
+        />
+      </label>
+
+      <label class="field">
+        <span>Data de nascimento</span>
+        <input
+          type="text"
+          inputmode="numeric"
+          maxlength="10"
+          placeholder="DD/MM/AAAA"
+          appInputMask="date"
+          [formControl]="patientBirthDateControl"
+        />
+      </label>
+
+      <label class="field">
+        <span>Sexo biológico</span>
+        <select [formControl]="patientSexControl">
+          <option value="">Não informado</option>
+          <option value="male">Masculino</option>
+          <option value="female">Feminino</option>
+        </select>
+      </label>
+
+      <label class="field field--full">
+        <span>Observações</span>
+        <textarea rows="3" [formControl]="patientNotesControl"></textarea>
+      </label>
+
+      <button class="primary-action" type="submit" [disabled]="actionState === 'loading'">
+        Salvar paciente
+      </button>
+    </form>
+  </section>
+
+  <section class="panel meal-plans-panel" id="meal-plans-section" *ngIf="patient">
+    <div class="panel__header">
+      <div>
+        <p class="section-label">Planos</p>
+        <h2>Planos alimentares</h2>
+      </div>
+      <button
+        class="primary-action"
+        type="button"
+        [routerLink]="['/meal-plans/new']"
+        [queryParams]="{ patientId: patientId }"
+      >
+        Novo plano
+      </button>
+    </div>
+
+    <div class="state-message state-message--loading" role="status" aria-live="polite" *ngIf="mealPlansState === 'loading'">
+      Carregando planos alimentares...
+    </div>
+
+    <div class="state-message state-message--error" role="status" aria-live="polite" *ngIf="mealPlansState === 'error'">
+      {{ mealPlansMessage }}
+    </div>
+
+    <div class="empty-state" *ngIf="mealPlansState === 'idle' && mealPlans.length === 0">
+      Nenhum plano alimentar vinculado a este paciente.
+    </div>
+
+    <div class="meal-plan-list" *ngIf="mealPlans.length > 0">
+      <a
+        class="meal-plan-row"
+        *ngFor="let plan of mealPlans"
+        [routerLink]="['/meal-plans', plan.id, 'edit']"
+      >
+        <div class="meal-plan-row__main">
+          <span class="status-pill" [class.status-pill--archived]="plan.status === 'archived'">
+            {{ statusLabel(plan.status) }}
+          </span>
+          <h3>{{ plan.title }}</h3>
+          <p>{{ plan.objective || 'Sem objetivo informado' }}</p>
+        </div>
+
+        <dl class="meal-plan-row__metrics">
+          <div>
+            <dt>kcal</dt>
+            <dd>{{ plan.totalKcal | number:'1.0-0' }}</dd>
+          </div>
+          <div>
+            <dt>Atualizado</dt>
+            <dd>{{ plan.updatedAt | date:'dd/MM/yy' }}</dd>
+          </div>
+        </dl>
+      </a>
+    </div>
+  </section>
+
+  <!-- Avaliações Físicas -->
+  <section class="panel" id="evaluations-section" *ngIf="patient">
+    <div class="panel__header">
+      <div>
+        <p class="section-label">Avaliações</p>
+        <h2>Avaliações físicas</h2>
+      </div>
+      <div class="eval-header-actions">
+        <button
+          class="secondary-action"
+          type="button"
+          *ngIf="evaluations.length > 0"
+          [routerLink]="['/nutritionist/patients', patientId, 'physical-evaluations', 'evolution']"
+        >
+          Ver evolução
+        </button>
+        <button
+          class="primary-action"
+          type="button"
+          [routerLink]="['/nutritionist/patients', patientId, 'physical-evaluations', 'new']"
+        >
+          Nova avaliação
+        </button>
+      </div>
+    </div>
+
+    <div class="state-message state-message--loading" role="status" aria-live="polite" *ngIf="evaluationsState === 'loading'">
+      Carregando avaliações...
+    </div>
+
+    <div class="state-message state-message--error" role="status" aria-live="polite" *ngIf="evaluationsState === 'error'">
+      {{ evaluationsMessage }}
+    </div>
+
+    <div class="empty-state" *ngIf="evaluationsState === 'idle' && evaluations.length === 0">
+      Nenhuma avaliação física registrada.
+    </div>
+
+    <div class="eval-list" *ngIf="evaluations.length > 0">
+      <div class="eval-row" *ngFor="let evaluation of evaluations">
+        <div class="eval-row__header">
+          <span class="eval-row__date">{{ evaluation.evaluatedAt | date:'dd/MM/yyyy':'UTC' }}</span>
+          <span class="eval-row__goal" *ngIf="evaluation.goal">{{ evaluation.goal }}</span>
+        </div>
+
+        <dl class="eval-row__metrics">
+          <div>
+            <dt>Peso</dt>
+            <dd>{{ evaluation.weightKg | number:'1.0-1' }} kg</dd>
+          </div>
+          <div>
+            <dt>IMC</dt>
+            <dd>{{ evaluation.bmi | number:'1.0-2' }}</dd>
+          </div>
+          <div *ngIf="evaluation.waistCm !== null">
+            <dt>Cintura</dt>
+            <dd>{{ evaluation.waistCm | number:'1.0-1' }} cm</dd>
+          </div>
+        </dl>
+
+        <div class="row-actions">
+          <button
+            class="secondary-action"
+            type="button"
+            [routerLink]="['/nutritionist/physical-evaluations', evaluation.id, 'edit']"
+          >
+            Editar
+          </button>
+          <button
+            class="danger-action"
+            type="button"
+            (click)="confirmDeleteEvaluation(evaluation.id)"
+            [disabled]="evaluationsState === 'loading'"
+          >
+            Excluir
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+</section>
+
+<app-confirm-dialog
+  [open]="isPatientDeleteConfirmOpen"
+  title="Remover paciente"
+  message="Remover este paciente? Isso apaga o cadastro, os planos alimentares e as avaliações físicas vinculadas a ele. Essa ação não pode ser desfeita."
+  confirmLabel="Remover paciente"
+  (confirmed)="deletePatient()"
+  (cancelled)="isPatientDeleteConfirmOpen = false"
+></app-confirm-dialog>
+
+<app-confirm-dialog
+  [open]="evaluationPendingDelete !== null"
+  title="Excluir avaliação física"
+  message="Excluir esta avaliação física? Essa ação não pode ser desfeita."
+  confirmLabel="Excluir avaliação"
+  (confirmed)="deleteEvaluation()"
+  (cancelled)="evaluationPendingDelete = null"
+></app-confirm-dialog>

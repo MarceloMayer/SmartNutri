@@ -1,0 +1,63 @@
+<section class="register-page">
+  <form class="register-form" (submit)="register(); $event.preventDefault()">
+    <div class="register-form__header">
+      <p>Smart Nutri</p>
+      <h1>Criar conta</h1>
+      <p class="register-form__hint">Cadastro para pacientes. Profissionais recebem acesso pelo administrador.</p>
+    </div>
+
+    <label class="field">
+      <span>Nome</span>
+      <input
+        type="text"
+        autocomplete="name"
+        [formControl]="nameControl"
+      />
+      <small *ngIf="showNameError">Informe seu nome (mínimo 2 caracteres).</small>
+    </label>
+
+    <label class="field">
+      <span>Email</span>
+      <input
+        type="email"
+        autocomplete="email"
+        [formControl]="emailControl"
+      />
+      <small *ngIf="showEmailError">Informe um email válido.</small>
+    </label>
+
+    <label class="field">
+      <span>Senha</span>
+      <input
+        type="password"
+        autocomplete="new-password"
+        [formControl]="passwordControl"
+      />
+      <small *ngIf="showPasswordError">Use entre 6 e 128 caracteres.</small>
+    </label>
+
+    <label class="field">
+      <span>Confirmar senha</span>
+      <input
+        type="password"
+        autocomplete="new-password"
+        [formControl]="confirmPasswordControl"
+      />
+      <small *ngIf="showConfirmPasswordError">Confirme a senha.</small>
+      <small *ngIf="confirmMismatch && !showConfirmPasswordError">As senhas não coincidem.</small>
+    </label>
+
+    <div class="state-message state-message--error" role="status" aria-live="polite" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <button class="primary-action" type="submit" [disabled]="isSubmitting">
+      {{ isSubmitting ? 'Criando conta...' : 'Cadastrar' }}
+    </button>
+
+    <p class="register-form__footer">
+      Já tem conta?
+      <a routerLink="/login" [queryParamsHandling]="'preserve'">Entrar</a>
+    </p>
+  </form>
+</section>

@@ -1,0 +1,159 @@
+.nutrition-card {
+  display: grid;
+  gap: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 14px;
+  background: #ffffff;
+}
+
+.nutrition-card--soft {
+  background: var(--color-surface-subtle);
+}
+
+h3 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 0.98rem;
+  line-height: 1.2;
+}
+
+// ─── Valores numéricos ────────────────────────────────────────────────────────
+
+.nutrition-body {
+  display: grid;
+  gap: 20px;
+}
+
+.nutrition-card__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  align-content: start;
+}
+
+.nutrition-card__grid div {
+  min-width: 0;
+  border-radius: 8px;
+  padding: 10px;
+  background: var(--color-bg);
+}
+
+dt {
+  color: var(--color-text-muted);
+  font-size: 0.68rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+dd {
+  margin: 4px 0 0;
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+small {
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+// ─── Gráfico de pizza ─────────────────────────────────────────────────────────
+
+.macro-chart {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.pie-svg {
+  width: 148px;
+  height: 148px;
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.pie-kcal {
+  font-size: 22px;
+  font-weight: 800;
+  fill: var(--color-text);
+}
+
+.pie-unit {
+  font-size: 11px;
+  font-weight: 700;
+  fill: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.macro-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  flex: 1;
+  min-width: 140px;
+}
+
+.macro-legend li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legend-name {
+  flex: 1;
+  color: var(--color-text-secondary);
+  font-weight: 750;
+  min-width: 0;
+}
+
+.legend-pct {
+  color: var(--color-text);
+  font-weight: 900;
+  font-size: 0.88rem;
+}
+
+.legend-g {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 750;
+  min-width: 36px;
+  text-align: right;
+}
+
+// ─── Responsivo ───────────────────────────────────────────────────────────────
+
+@media (min-width: 560px) {
+  .nutrition-body {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .nutrition-card__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 720px) {
+  .nutrition-card__grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .nutrition-body {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}

@@ -1,0 +1,230 @@
+<section class="meal-feed-page" [class.meal-feed-page--nutritionist]="!isPatient">
+  <header class="page-header">
+    <div>
+      <p class="section-label">{{ isPatient ? 'Diário alimentar' : 'Acompanhamento alimentar' }}</p>
+      <h1>{{ pageTitle }}</h1>
+      <p>{{ pageDescription }}</p>
+    </div>
+
+    <button class="refresh-action" type="button" (click)="loadFeed()" [disabled]="feedState === 'loading'">
+      <span aria-hidden="true">↻</span>
+      Atualizar
+    </button>
+  </header>
+
+  <section class="quick-add panel" *ngIf="isPatient && !composerOpen">
+    <span class="quick-add__icon" aria-hidden="true">⌁</span>
+    <div>
+      <h2>Como foi sua próxima refeição?</h2>
+      <p>Registre em poucos passos e escolha quem pode acompanhar.</p>
+    </div>
+    <button class="primary-action" type="button" (click)="openComposer()">Registrar refeição</button>
+  </section>
+
+  <form class="composer panel" *ngIf="isPatient && composerOpen" (ngSubmit)="createPost()">
+    <header class="composer__heading">
+      <div class="composer__title">
+        <span class="composer__icon" aria-hidden="true">✦</span>
+        <div>
+          <p class="section-label">Nova publicação</p>
+          <h2>Registre sua refeição</h2>
+          <p>Compartilhe o que fizer sentido para o seu acompanhamento.</p>
+        </div>
+      </div>
+      <button class="close-action" type="button" (click)="closeComposer()" [disabled]="composeState === 'loading'">
+        Cancelar
+      </button>
+    </header>
+
+    <section class="composer__section">
+      <div class="step-label"><span>1</span> Sobre a refeição</div>
+
+      <label class="field">
+        <span>Qual refeição você fez?</span>
+        <input
+          type="text"
+          maxlength="160"
+          [formControl]="mealNameControl"
+          placeholder="Ex.: Almoço"
+          autofocus
+        />
+        <small *ngIf="mealNameControl.touched && mealNameControl.invalid">Dê um nome para a refeição.</small>
+      </label>
+
+      <label class="field">
+        <span>Quer deixar uma observação? <em>(opcional)</em></span>
+        <textarea
+          rows="3"
+          maxlength="2000"
+          [formControl]="descriptionControl"
+          placeholder="O que você comeu? Como se sentiu?"
+        ></textarea>
+      </label>
+
+      <div class="photo-picker" [class.photo-picker--filled]="selectedImagePreview">
+        <input #imageInput id="meal-image" type="file" accept="image/jpeg,image/png,image/webp" (change)="onImageSelected($event)" />
+
+        <ng-container *ngIf="selectedImagePreview; else photoEmptyState">
+          <img [src]="selectedImagePreview" alt="Prévia da foto selecionada" />
+          <div class="photo-picker__overlay">
+            <span>{{ selectedImageName }}</span>
+            <button type="button" (click)="clearSelectedImage()">Remover foto</button>
+          </div>
+        </ng-container>
+
+        <ng-template #photoEmptyState>
+          <label class="photo-picker__empty" for="meal-image">
+            <span class="photo-picker__camera" aria-hidden="true">⌑</span>
+            <strong>Adicionar foto</strong>
+            <small>JPG, PNG ou WEBP</small>
+          </label>
+        </ng-template>
+      </div>
+    </section>
+
+    <fieldset class="privacy-field composer__section">
+      <legend><span class="step-label"><span>2</span> Privacidade</span></legend>
+      <p class="privacy-field__intro">Você pode mudar essa escolha em cada publicação.</p>
+
+      <label class="privacy-option" [class.privacy-option--selected]="visibilityControl.value === 'nutritionist_only'">
+        <input type="radio" value="nutritionist_only" [formControl]="visibilityControl" />
+        <span class="privacy-option__icon" aria-hidden="true">⌑</span>
+        <span class="privacy-option__text">
+          <strong>Apenas minha nutricionista</strong>
+          <small>Uma conversa privada entre vocês duas.</small>
+        </span>
+        <span class="privacy-option__check" aria-hidden="true">✓</span>
+      </label>
+
+      <label class="privacy-option" [class.privacy-option--selected]="visibilityControl.value === 'shared_with_patients'">
+        <input type="radio" value="shared_with_patients" [formControl]="visibilityControl" />
+        <span class="privacy-option__icon" aria-hidden="true">◌</span>
+        <span class="privacy-option__text">
+          <strong>Compartilhar com o grupo</strong>
+          <small>Pacientes da mesma nutricionista podem ver e comentar.</small>
+        </span>
+        <span class="privacy-option__check" aria-hidden="true">✓</span>
+      </label>
+    </fieldset>
+
+    <footer class="composer__footer">
+      <p class="composer__privacy-hint">
+        <span aria-hidden="true">⌑</span>
+        {{ visibilityHint(visibilityControl.value) }}
+      </p>
+      <button class="primary-action" type="submit" [disabled]="composeState === 'loading'">
+        {{ composeState === 'loading' ? 'Publicando...' : 'Publicar refeição' }}
+      </button>
+    </footer>
+  </form>
+
+  <div
+    class="state-message"
+    role="status"
+    aria-live="polite"
+    [class.state-message--error]="feedState === 'error' || composeState === 'error'"
+    *ngIf="message"
+  >
+    {{ message }}
+  </div>
+
+  <div class="state-message state-message--loading" role="status" aria-live="polite" *ngIf="feedState === 'loading' && posts.length === 0">
+    Carregando refeições...
+  </div>
+
+  <section class="feed-list" [class.feed-list--refreshing]="feedState === 'loading' && posts.length > 0" *ngIf="feedState !== 'loading' || posts.length > 0">
+    <article class="feed-card panel" *ngFor="let post of posts; trackBy: trackPost">
+      <header class="feed-card__header">
+        <div class="author">
+          <span class="avatar" aria-hidden="true">{{ initial(post.author.name) }}</span>
+          <div>
+            <h2>{{ post.author.name }}</h2>
+            <p>{{ post.createdAt | date:'dd MMM · HH:mm' }}</p>
+          </div>
+        </div>
+        <span
+          class="visibility-badge"
+          [class.visibility-badge--shared]="post.visibility === 'shared_with_patients'"
+        >
+          <span aria-hidden="true">{{ post.visibility === 'shared_with_patients' ? '◌' : '⌑' }}</span>
+          {{ post.visibility === 'shared_with_patients' ? 'Grupo' : 'Privada' }}
+        </span>
+      </header>
+
+      <img
+        *ngIf="imageUrl(post) as imageUrl"
+        class="meal-image"
+        [src]="imageUrl"
+        [alt]="'Foto da refeição: ' + post.mealName"
+      />
+
+      <div class="feed-card__content">
+        <div class="meal-title-row">
+          <h3>{{ post.mealName }}</h3>
+          <span *ngIf="post.isOwnPost" class="own-post-tag">Sua publicação</span>
+        </div>
+        <p *ngIf="post.description">{{ post.description }}</p>
+      </div>
+
+      <section class="comments" aria-label="Comentários">
+        <div class="comments__title">
+          <strong>Comentários</strong>
+          <span>{{ post.comments.length }}</span>
+          <button
+            class="comment-trigger"
+            type="button"
+            *ngIf="post.canComment"
+            (click)="toggleCommentComposer(post.id)"
+          >
+            {{ isCommentComposerOpen(post.id) ? 'Fechar' : (post.comments.length ? 'Responder' : 'Comentar') }}
+          </button>
+        </div>
+
+        <div class="comment-list" *ngIf="post.comments.length > 0">
+          <article class="comment" *ngFor="let comment of post.comments; trackBy: trackComment">
+            <span class="comment__avatar" [class.comment__avatar--nutritionist]="comment.author.role === 'nutritionist'">
+              {{ initial(comment.author.name) }}
+            </span>
+            <div class="comment__bubble">
+              <div class="comment__meta">
+                <strong>{{ comment.author.name }}</strong>
+                <span *ngIf="comment.author.role === 'nutritionist'">Nutricionista</span>
+              </div>
+              <p>{{ comment.content }}</p>
+            </div>
+          </article>
+        </div>
+
+        <p class="comments__empty" *ngIf="post.comments.length === 0 && post.canComment && !isCommentComposerOpen(post.id)">
+          Nenhum comentário ainda. Que tal começar a conversa?
+        </p>
+
+        <p class="comments__private-note" *ngIf="!post.canComment">
+          Esta é uma publicação privada entre a paciente e a nutricionista.
+        </p>
+
+        <form class="comment-form" *ngIf="post.canComment && isCommentComposerOpen(post.id)" (ngSubmit)="addComment(post)">
+          <input
+            type="text"
+            maxlength="1000"
+            [name]="'comment-' + post.id"
+            [(ngModel)]="commentDrafts[post.id]"
+            placeholder="Escreva um comentário acolhedor..."
+            [disabled]="commentingPostId === post.id"
+            autofocus
+          />
+          <button type="submit" [disabled]="!commentDrafts[post.id]?.trim() || commentingPostId !== null">
+            {{ commentingPostId === post.id ? 'Enviando...' : 'Enviar' }}
+          </button>
+        </form>
+      </section>
+    </article>
+
+    <section class="empty-state panel" *ngIf="posts.length === 0">
+      <span class="empty-state__icon" aria-hidden="true">⌁</span>
+      <h2>{{ isPatient ? 'Seu diário começa aqui' : 'Ainda não há refeições no feed' }}</h2>
+      <p>{{ isPatient ? 'Registre uma refeição para acompanhar sua rotina e receber orientações mais próximas.' : 'Quando seus pacientes publicarem refeições, elas aparecerão nesta área.' }}</p>
+      <button class="primary-action" type="button" *ngIf="isPatient" (click)="openComposer()">Registrar primeira refeição</button>
+    </section>
+  </section>
+</section>

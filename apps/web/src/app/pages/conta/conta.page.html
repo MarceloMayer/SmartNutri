@@ -1,0 +1,60 @@
+<section class="conta-page" *ngIf="user$ | async as user">
+  <header class="conta-page__header">
+    <p class="section-label">Minha conta</p>
+    <h1>Olá, {{ user.name }}</h1>
+    <p class="conta-page__meta">{{ user.email }}</p>
+  </header>
+
+  <article class="panel">
+    <p class="section-label">Segurança</p>
+    <h2>Alterar senha</h2>
+
+    <form class="password-form" (submit)="changePassword(); $event.preventDefault()">
+      <label class="field">
+        <span>Senha atual</span>
+        <input type="password" [formControl]="currentPasswordControl" autocomplete="current-password" />
+        <small *ngIf="currentPasswordControl.touched && currentPasswordControl.invalid">
+          Informe sua senha atual.
+        </small>
+      </label>
+
+      <label class="field">
+        <span>Nova senha</span>
+        <input type="password" [formControl]="newPasswordControl" autocomplete="new-password" />
+        <small *ngIf="newPasswordControl.touched && newPasswordControl.invalid">
+          A nova senha deve ter pelo menos 6 caracteres.
+        </small>
+      </label>
+
+      <label class="field">
+        <span>Confirmar nova senha</span>
+        <input type="password" [formControl]="confirmPasswordControl" autocomplete="new-password" />
+        <small *ngIf="confirmPasswordControl.touched && confirmPasswordControl.invalid">
+          Confirme a nova senha.
+        </small>
+      </label>
+
+      <button class="primary-action" type="submit" [disabled]="state === 'loading'">
+        {{ state === 'loading' ? 'Salvando...' : 'Salvar nova senha' }}
+      </button>
+    </form>
+
+    <div
+      class="state-message"
+      role="status"
+      aria-live="polite"
+      [class.state-message--error]="state === 'error'"
+      [class.state-message--success]="state === 'success'"
+      *ngIf="message"
+    >
+      {{ message }}
+    </div>
+  </article>
+
+  <article class="panel">
+    <div class="conta-page__actions">
+      <a class="secondary-action" routerLink="/">Início</a>
+      <button class="danger-action" type="button" (click)="logout()">Sair</button>
+    </div>
+  </article>
+</section>

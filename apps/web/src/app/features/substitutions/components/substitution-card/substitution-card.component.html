@@ -1,0 +1,51 @@
+<article class="substitution-card">
+  <button type="button" class="substitution-card__surface" (click)="selectSubstitution()">
+    <div class="substitution-card__title">
+      <p class="label">Substituir por</p>
+      <h2>{{ substitution.food.name }}</h2>
+      <p class="quantity">{{ substitution.quantity }} g</p>
+      <p class="favorite-badge" *ngIf="substitution.isFavorite">Favorito</p>
+    </div>
+
+    <div class="score" [class.score--best]="scoreTone === 'best'" [class.score--middle]="scoreTone === 'middle'" [class.score--worst]="scoreTone === 'worst'">
+      {{ substitution.score }}
+    </div>
+
+    <dl class="nutrition-grid">
+      <div>
+        <dt>kcal</dt>
+        <dd>{{ formatValue(substitution.nutrients.kcal, 'kcal') }}</dd>
+      </div>
+      <div>
+        <dt>carbo</dt>
+        <dd>{{ formatValue(substitution.nutrients.carbs, 'g') }}</dd>
+      </div>
+      <div>
+        <dt>proteina</dt>
+        <dd>{{ formatValue(substitution.nutrients.protein, 'g') }}</dd>
+      </div>
+      <div>
+        <dt>gordura</dt>
+        <dd>{{ formatValue(substitution.nutrients.fat, 'g') }}</dd>
+      </div>
+      <div>
+        <dt>fibra</dt>
+        <dd>{{ formatValue(substitution.nutrients.fiber, 'g') }}</dd>
+      </div>
+    </dl>
+
+    <div class="diff-row">
+      <span>Dif. kcal: {{ formatPercent(substitution.differences.kcal.percent) }}</span>
+      <span>Dif. {{ equivalenceLabel }}: {{ formatPercent(substitution.differences[equivalenceNutrient].percent) }}</span>
+    </div>
+  </button>
+
+  <div class="card-actions" *ngIf="showActions">
+    <button type="button" (click)="favoriteSubstitution($event)">
+      Favoritar
+    </button>
+    <button type="button" (click)="blockSubstitution($event)">
+      Bloquear
+    </button>
+  </div>
+</article>

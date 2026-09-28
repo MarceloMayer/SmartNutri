@@ -1,0 +1,228 @@
+.users-page {
+  display: grid;
+  gap: 16px;
+  width: min(100%, 1120px);
+  margin: 0 auto;
+  padding: 18px 16px 28px;
+}
+
+.page-header,
+.panel,
+.user-form,
+.user-list {
+  display: grid;
+  gap: 14px;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1 {
+  color: var(--color-text);
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+h2 {
+  color: var(--color-text);
+  font-size: 1.2rem;
+}
+
+h3 {
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.section-label {
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.panel {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 16px;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(22, 32, 51, 0.05);
+}
+
+.panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 750;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px;
+  padding: 0 12px;
+  background: var(--color-surface-subtle);
+  color: var(--color-text);
+}
+
+.field input:focus,
+.field select:focus {
+  border-color: var(--color-primary);
+  outline: 3px solid rgba(219, 39, 119, 0.16);
+}
+
+.field small {
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+.primary-action,
+.secondary-action {
+  min-height: 40px;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-weight: 850;
+}
+
+.primary-action {
+  border: 0;
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.secondary-action {
+  border: 1px solid var(--color-border-strong);
+  background: #ffffff;
+  color: var(--color-text-secondary);
+}
+
+.primary-action:disabled,
+.secondary-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.68;
+}
+
+.user-row {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 12px;
+  background: var(--color-surface-subtle);
+}
+
+.user-row p {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 750;
+}
+
+.user-row__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.user-row__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.role-badge {
+  display: inline-grid;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 5px 8px;
+  background: var(--color-primary-bg);
+  color: var(--color-primary-dark);
+  font-size: 0.74rem;
+  font-weight: 850;
+}
+
+.status-badge {
+  display: inline-grid;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 5px 8px;
+  background: #ecfdf5;
+  color: #047857;
+  font-size: 0.74rem;
+  font-weight: 850;
+}
+
+.status-badge--inactive {
+  background: #fef2f2;
+  color: var(--color-danger);
+}
+
+.state-message {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 12px;
+  background: #ffffff;
+  color: var(--color-text-secondary);
+  font-weight: 750;
+}
+
+.state-message--loading {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-bg);
+  color: var(--color-primary-dark);
+}
+
+.state-message--error {
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.empty-state {
+  margin: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 16px;
+  background: var(--color-surface-subtle);
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+@media (min-width: 720px) {
+  .users-page {
+    padding: 28px 32px 40px;
+  }
+
+  .user-form {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+    align-items: end;
+  }
+
+  .user-form--with-status {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) auto;
+  }
+
+  .user-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .user-row__actions {
+    justify-content: flex-end;
+  }
+}

@@ -1,0 +1,163 @@
+<section class="patients-page">
+  <header class="page-header">
+    <p class="section-label">Nutricionista</p>
+    <h1>Pacientes</h1>
+  </header>
+
+  <section class="panel">
+    <div class="panel__header">
+      <div>
+        <p class="section-label">{{ formMode === 'edit' ? 'Editar paciente' : 'Novo paciente' }}</p>
+        <h2>{{ formMode === 'edit' ? selectedPatient?.name : 'Cadastro' }}</h2>
+      </div>
+
+      <button class="secondary-action" type="button" (click)="startCreate()">
+        Novo
+      </button>
+    </div>
+
+    <form class="patient-form" (submit)="savePatient(); $event.preventDefault()">
+      <label class="field">
+        <span>Nome</span>
+        <input type="text" [formControl]="nameControl" />
+        <small *ngIf="nameControl.touched && nameControl.invalid">Informe o nome.</small>
+      </label>
+
+      <label class="field">
+        <span>Email</span>
+        <input type="email" [formControl]="emailControl" />
+        <small *ngIf="emailControl.touched && emailControl.invalid">Informe um email válido.</small>
+      </label>
+
+      <label class="field">
+        <span>Telefone</span>
+        <input
+          type="tel"
+          inputmode="numeric"
+          maxlength="15"
+          appInputMask="phone"
+          [formControl]="phoneControl"
+        />
+      </label>
+
+      <label class="field">
+        <span>Data de nascimento</span>
+        <input
+          type="text"
+          inputmode="numeric"
+          maxlength="10"
+          placeholder="DD/MM/AAAA"
+          appInputMask="date"
+          [formControl]="birthDateControl"
+        />
+      </label>
+
+      <label class="field">
+        <span>Sexo biológico</span>
+        <select [formControl]="sexControl">
+          <option value="">Não informado</option>
+          <option value="male">Masculino</option>
+          <option value="female">Feminino</option>
+        </select>
+      </label>
+
+      <label class="field field--full">
+        <span>Observações</span>
+        <textarea rows="3" [formControl]="notesControl"></textarea>
+      </label>
+
+      <label class="check-field field--full" *ngIf="formMode === 'create'">
+        <input type="checkbox" [formControl]="generateAccessControl" />
+        <span>Gerar senha para acesso do paciente</span>
+      </label>
+
+      <button class="primary-action" type="submit" [disabled]="formState === 'loading'">
+        {{ formMode === 'edit' ? 'Salvar paciente' : 'Criar paciente' }}
+      </button>
+    </form>
+
+    <div
+      class="state-message"
+      role="status"
+      aria-live="polite"
+      [class.state-message--error]="formState === 'error' || state === 'error'"
+      *ngIf="message"
+    >
+      {{ message }}
+    </div>
+
+    <div class="generated-password" *ngIf="generatedPassword">
+      <span>Senha gerada</span>
+      <div class="generated-password__value">
+        <strong>{{ generatedPassword }}</strong>
+        <button type="button" class="generated-password__copy" (click)="copyGeneratedPassword()">
+          {{ passwordCopied ? 'Copiado!' : 'Copiar' }}
+        </button>
+      </div>
+      <p class="generated-password__warning">
+        Anote ou compartilhe agora com o paciente: essa senha não poderá ser exibida novamente.
+      </p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel__header">
+      <div>
+        <p class="section-label">Lista</p>
+        <h2>Pacientes cadastrados</h2>
+      </div>
+    </div>
+
+    <div class="state-message state-message--loading" role="status" aria-live="polite" *ngIf="state === 'loading'">
+      Carregando pacientes...
+    </div>
+
+    <div class="patient-list">
+      <article class="patient-row" *ngFor="let patient of patients">
+        <div>
+          <h3>{{ patient.name }}</h3>
+          <p>{{ patient.email || '-' }}</p>
+          <p>{{ patient.phone || '-' }}</p>
+        </div>
+
+        <div class="row-actions">
+          <a class="primary-link" [routerLink]="['/nutritionist/patients', patient.id]">
+            Abrir
+          </a>
+          <a
+            class="shortcut-link shortcut-link--diet"
+            [routerLink]="['/nutritionist/patients', patient.id]"
+            [fragment]="'meal-plans-section'"
+          >
+            Dieta
+          </a>
+          <a
+            class="shortcut-link shortcut-link--eval"
+            [routerLink]="['/nutritionist/patients', patient.id, 'physical-evaluations', 'evolution']"
+          >
+            Avaliação
+          </a>
+          <button class="secondary-action" type="button" (click)="startEdit(patient)">
+            Editar
+          </button>
+          <button class="danger-action" type="button" (click)="confirmDeletePatient(patient)">
+            Remover
+          </button>
+        </div>
+      </article>
+
+      <p class="empty-state" *ngIf="state === 'idle' && patients.length === 0">
+        Nenhum paciente cadastrado ainda. Use o formulário acima para criar o primeiro.
+      </p>
+    </div>
+  </section>
+</section>
+
+<app-confirm-dialog
+  [open]="patientPendingDelete !== null"
+  title="Remover paciente"
+  [message]="patientPendingDelete ? ('Remover ' + patientPendingDelete.name + '? Isso apaga o cadastro, os planos alimentares e as avaliações físicas vinculadas a ele. Essa ação não pode ser desfeita.') : ''"
+  confirmLabel="Remover paciente"
+  (confirmed)="deletePatient()"
+  (cancelled)="cancelDeletePatient()"
+></app-confirm-dialog>

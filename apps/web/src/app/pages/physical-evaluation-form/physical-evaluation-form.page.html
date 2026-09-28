@@ -1,0 +1,464 @@
+<section class="eval-form-page">
+  <header class="page-header">
+    <a class="back-link" [routerLink]="['/nutritionist/patients', patientIdForBack]">Paciente</a>
+    <p class="section-label">Avaliação Física</p>
+    <h1>{{ isEditMode ? 'Editar avaliação' : 'Nova avaliação' }}</h1>
+  </header>
+
+  <div class="state-message state-message--loading" role="status" aria-live="polite" *ngIf="pageState === 'loading'">
+    Carregando avaliação...
+  </div>
+
+  <div class="state-message state-message--error" role="status" aria-live="polite" *ngIf="pageState === 'error'">
+    {{ message }}
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="save()" *ngIf="pageState !== 'loading'">
+
+    <!-- Seção 1: Dados da Avaliação -->
+    <section class="panel">
+      <div class="panel__header">
+        <div>
+          <p class="section-label">Dados</p>
+          <h2>Dados da avaliação</h2>
+        </div>
+      </div>
+
+      <div class="eval-form">
+        <label class="field">
+          <span>Data da avaliação</span>
+          <input
+            type="text"
+            inputmode="numeric"
+            maxlength="10"
+            placeholder="DD/MM/AAAA"
+            appInputMask="date"
+            formControlName="evaluatedAt"
+          />
+          <small *ngIf="form.controls.evaluatedAt.touched && form.controls.evaluatedAt.invalid">
+            Informe a data da avaliação.
+          </small>
+        </label>
+
+        <label class="field">
+          <span>Peso (kg)</span>
+          <input type="number" step="0.1" min="0" formControlName="weightKg" placeholder="Ex: 70.5" />
+          <small *ngIf="form.controls.weightKg.touched && form.controls.weightKg.invalid">
+            Informe o peso.
+          </small>
+        </label>
+
+        <label class="field">
+          <span>Altura (cm)</span>
+          <input type="number" step="0.1" min="0" formControlName="heightCm" placeholder="Ex: 175" />
+          <small *ngIf="form.controls.heightCm.touched && form.controls.heightCm.invalid">
+            Informe a altura.
+          </small>
+        </label>
+
+        <label class="field field--full">
+          <span>Objetivo</span>
+          <input type="text" formControlName="goal" placeholder="Ex: Perda de gordura" />
+        </label>
+      </div>
+    </section>
+
+    <!-- Seção 2: Medidas Corporais -->
+    <section class="panel">
+      <div class="panel__header">
+        <div>
+          <p class="section-label">Medidas</p>
+          <h2>Medidas corporais (cm)</h2>
+        </div>
+      </div>
+
+      <div class="measures-form">
+        <label class="field">
+          <span>Cintura</span>
+          <input type="number" step="0.1" min="0" formControlName="waistCm" />
+        </label>
+
+        <label class="field">
+          <span>Quadril</span>
+          <input type="number" step="0.1" min="0" formControlName="hipCm" />
+        </label>
+
+        <label class="field">
+          <span>Abdômen</span>
+          <input type="number" step="0.1" min="0" formControlName="abdomenCm" />
+        </label>
+
+        <label class="field">
+          <span>Tórax</span>
+          <input type="number" step="0.1" min="0" formControlName="chestCm" />
+        </label>
+
+        <label class="field">
+          <span>Braço direito</span>
+          <input type="number" step="0.1" min="0" formControlName="rightArmCm" />
+        </label>
+
+        <label class="field">
+          <span>Braço esquerdo</span>
+          <input type="number" step="0.1" min="0" formControlName="leftArmCm" />
+        </label>
+
+        <label class="field">
+          <span>Antebraço direito</span>
+          <input type="number" step="0.1" min="0" formControlName="rightForearmCm" />
+        </label>
+
+        <label class="field">
+          <span>Antebraço esquerdo</span>
+          <input type="number" step="0.1" min="0" formControlName="leftForearmCm" />
+        </label>
+
+        <label class="field">
+          <span>Coxa direita</span>
+          <input type="number" step="0.1" min="0" formControlName="rightThighCm" />
+        </label>
+
+        <label class="field">
+          <span>Coxa esquerda</span>
+          <input type="number" step="0.1" min="0" formControlName="leftThighCm" />
+        </label>
+
+        <label class="field">
+          <span>Panturrilha direita</span>
+          <input type="number" step="0.1" min="0" formControlName="rightCalfCm" />
+        </label>
+
+        <label class="field">
+          <span>Panturrilha esquerda</span>
+          <input type="number" step="0.1" min="0" formControlName="leftCalfCm" />
+        </label>
+      </div>
+    </section>
+
+    <!-- Seção 3: Dobras Cutâneas -->
+    <section class="panel">
+      <div class="panel__header">
+        <div>
+          <p class="section-label">Dobras</p>
+          <h2>Dobras cutâneas (mm)</h2>
+        </div>
+      </div>
+
+      <div class="measures-form">
+        <label class="field">
+          <span>Tríceps</span>
+          <input type="number" step="0.1" min="0" formControlName="tricepsSkinfoldMm" />
+        </label>
+
+        <label class="field">
+          <span>Bíceps</span>
+          <input type="number" step="0.1" min="0" formControlName="bicepsSkinfoldMm" />
+        </label>
+
+        <label class="field">
+          <span>Subescapular</span>
+          <input type="number" step="0.1" min="0" formControlName="subscapularSkinfoldMm" />
+        </label>
+
+        <label class="field">
+          <span>Suprailíaca</span>
+          <input type="number" step="0.1" min="0" formControlName="suprailiacSkinfoldMm" />
+        </label>
+
+        <label class="field">
+          <span>Abdominal</span>
+          <input type="number" step="0.1" min="0" formControlName="abdominalSkinfoldMm" />
+        </label>
+
+        <label class="field">
+          <span>Peitoral</span>
+          <input type="number" step="0.1" min="0" formControlName="pectoralSkinfoldMm" />
+        </label>
+
+        <label class="field">
+          <span>Axilar média</span>
+          <input type="number" step="0.1" min="0" formControlName="midaxillarySkinfoldMm" />
+        </label>
+
+        <label class="field">
+          <span>Coxa</span>
+          <input type="number" step="0.1" min="0" formControlName="thighSkinfoldMm" />
+        </label>
+
+        <label class="field">
+          <span>Panturrilha</span>
+          <input type="number" step="0.1" min="0" formControlName="calfSkinfoldMm" />
+        </label>
+      </div>
+    </section>
+
+    <!-- Seção 4: Composição Corporal -->
+    <section class="panel composition-panel">
+      <div class="panel__header">
+        <div>
+          <p class="section-label">Composição</p>
+          <h2>Composição corporal</h2>
+        </div>
+      </div>
+
+      <!-- Aviso quando dados demográficos do paciente estão ausentes -->
+      <div class="demographics-notice" *ngIf="!hasPatientDemographics">
+        Preencha o <strong>sexo biológico</strong> e a <strong>data de nascimento</strong>
+        do paciente para habilitar os cálculos de composição corporal e gasto calórico.
+      </div>
+
+      <!-- Cards dos protocolos de dobras cutâneas -->
+      <div class="protocol-grid">
+
+        <!-- Jackson & Pollock 3 dobras -->
+        <div class="protocol-card" [class.protocol-card--unavailable]="!jp3Status.available">
+          <div class="protocol-card__head">
+            <div>
+              <p class="protocol-name">J&amp;P 3 dobras</p>
+              <p class="protocol-sites">
+                <ng-container *ngIf="patientSex === 'male'">Peitoral · Abdominal · Coxa</ng-container>
+                <ng-container *ngIf="patientSex === 'female'">Tríceps · Suprailíaca · Coxa</ng-container>
+                <ng-container *ngIf="!patientSex">Sexo-específico · 3 dobras</ng-container>
+              </p>
+            </div>
+            <span class="protocol-badge" [class.protocol-badge--ok]="jp3Status.available">
+              {{ jp3Status.available ? 'Disponível' : (hasPatientDemographics ? 'Incompleto' : 'Aguardando') }}
+            </span>
+          </div>
+          <p class="protocol-missing" *ngIf="!jp3Status.available && jp3Status.missingFields.length > 0">
+            Faltam: {{ jp3Status.missingFields.join(', ') }}
+          </p>
+          <div class="protocol-results" *ngIf="jp3Status.result">
+            <div class="result-row"><span>% Gordura</span><strong>{{ jp3Status.result.bodyFatPct | number:'1.1-1' }}%</strong></div>
+            <div class="result-row"><span>Massa gorda</span><strong>{{ jp3Status.result.fatMassKg | number:'1.1-1' }} kg</strong></div>
+            <div class="result-row"><span>Massa magra</span><strong>{{ jp3Status.result.leanMassKg | number:'1.1-1' }} kg</strong></div>
+          </div>
+        </div>
+
+        <!-- Jackson & Pollock 7 dobras -->
+        <div class="protocol-card" [class.protocol-card--unavailable]="!jp7Status.available">
+          <div class="protocol-card__head">
+            <div>
+              <p class="protocol-name">J&amp;P 7 dobras</p>
+              <p class="protocol-sites">Peitoral · Ax. Média · Tríceps · Subesc. · Abdominal · Suprailíaca · Coxa</p>
+            </div>
+            <span class="protocol-badge" [class.protocol-badge--ok]="jp7Status.available">
+              {{ jp7Status.available ? 'Disponível' : (hasPatientDemographics ? 'Incompleto' : 'Aguardando') }}
+            </span>
+          </div>
+          <p class="protocol-missing" *ngIf="!jp7Status.available && jp7Status.missingFields.length > 0">
+            Faltam: {{ jp7Status.missingFields.join(', ') }}
+          </p>
+          <div class="protocol-results" *ngIf="jp7Status.result">
+            <div class="result-row"><span>% Gordura</span><strong>{{ jp7Status.result.bodyFatPct | number:'1.1-1' }}%</strong></div>
+            <div class="result-row"><span>Massa gorda</span><strong>{{ jp7Status.result.fatMassKg | number:'1.1-1' }} kg</strong></div>
+            <div class="result-row"><span>Massa magra</span><strong>{{ jp7Status.result.leanMassKg | number:'1.1-1' }} kg</strong></div>
+          </div>
+        </div>
+
+        <!-- Petroski 4 dobras -->
+        <div class="protocol-card" [class.protocol-card--unavailable]="!petroskiStatus.available">
+          <div class="protocol-card__head">
+            <div>
+              <p class="protocol-name">Petroski 4 dobras</p>
+              <p class="protocol-sites">Tríceps · Subescapular · Suprailíaca · Panturrilha</p>
+            </div>
+            <span class="protocol-badge" [class.protocol-badge--ok]="petroskiStatus.available">
+              {{ petroskiStatus.available ? 'Disponível' : (hasPatientDemographics ? 'Incompleto' : 'Aguardando') }}
+            </span>
+          </div>
+          <p class="protocol-missing" *ngIf="!petroskiStatus.available && petroskiStatus.missingFields.length > 0">
+            Faltam: {{ petroskiStatus.missingFields.join(', ') }}
+          </p>
+          <div class="protocol-results" *ngIf="petroskiStatus.result">
+            <div class="result-row"><span>% Gordura</span><strong>{{ petroskiStatus.result.bodyFatPct | number:'1.1-1' }}%</strong></div>
+            <div class="result-row"><span>Massa gorda</span><strong>{{ petroskiStatus.result.fatMassKg | number:'1.1-1' }} kg</strong></div>
+            <div class="result-row"><span>Massa magra</span><strong>{{ petroskiStatus.result.leanMassKg | number:'1.1-1' }} kg</strong></div>
+          </div>
+        </div>
+
+      </div><!-- /protocol-grid -->
+
+      <!-- Gasto calórico — Mifflin-St Jeor -->
+      <div class="tdee-section" *ngIf="bmr !== null">
+        <p class="section-label">Gasto calórico</p>
+        <label class="field tdee-field">
+          <span>Nível de atividade física</span>
+          <select [formControl]="activityFactorControl">
+            <option *ngFor="let level of activityLevels" [value]="level.factor">{{ level.label }}</option>
+          </select>
+        </label>
+        <div class="tdee-results">
+          <div class="tdee-result-item">
+            <span class="tdee-result-label">TMB — Taxa metabólica basal</span>
+            <span class="tdee-result-value">{{ bmr | number:'1.0-0' }} kcal/dia</span>
+          </div>
+          <div class="tdee-result-item tdee-result-item--highlight">
+            <span class="tdee-result-label">GET — Gasto energético total</span>
+            <span class="tdee-result-value">{{ tdee | number:'1.0-0' }} kcal/dia</span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Seção 5: Observações -->
+    <section class="panel">
+      <div class="panel__header">
+        <div>
+          <p class="section-label">Notas</p>
+          <h2>Observações</h2>
+        </div>
+      </div>
+
+      <label class="field">
+        <span>Observações livres</span>
+        <textarea rows="4" formControlName="notes"></textarea>
+      </label>
+    </section>
+
+    <div class="state-message state-message--error" role="status" aria-live="polite" *ngIf="actionState === 'error' && message">
+      {{ message }}
+    </div>
+
+    <div class="form-footer">
+      <button class="primary-action" type="submit" [disabled]="actionState === 'loading'">
+        {{ actionState === 'loading' ? 'Salvando...' : 'Salvar avaliação' }}
+      </button>
+
+      <a
+        class="secondary-action"
+        [routerLink]="['/nutritionist/patients', patientIdForBack]"
+      >
+        Cancelar
+      </a>
+    </div>
+
+  </form>
+
+  <!-- Seção 5: Fotos e Anexos (somente no modo edição) -->
+  <section class="panel files-panel" *ngIf="isEditMode">
+    <div class="panel__header">
+      <div>
+        <p class="section-label">Arquivos</p>
+        <h2>Fotos e Anexos</h2>
+      </div>
+    </div>
+
+    <div class="state-message state-message--loading" role="status" aria-live="polite" *ngIf="filesState === 'loading'">
+      Carregando arquivos...
+    </div>
+
+    <div class="state-message state-message--error" role="status" aria-live="polite" *ngIf="fileMessage">
+      {{ fileMessage }}
+    </div>
+
+    <ng-container *ngIf="filesState !== 'loading'">
+
+      <!-- Fotos por categoria -->
+      <div class="photo-section" *ngFor="let cat of photoCategories">
+        <div class="photo-section__header">
+          <span class="photo-section__title">{{ cat.label }}</span>
+          <label
+            class="upload-btn"
+            [class.upload-btn--disabled]="uploadingCategory === cat.value"
+          >
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              (change)="uploadPhoto($event, cat.value)"
+              [disabled]="uploadingCategory !== null"
+              hidden
+            />
+            {{ uploadingCategory === cat.value ? 'Enviando...' : '+ Foto' }}
+          </label>
+        </div>
+
+        <div class="photo-grid" *ngIf="photosForCategory(cat.value).length > 0; else noPhotos">
+          <div
+            class="photo-item"
+            *ngFor="let photo of photosForCategory(cat.value)"
+          >
+            <img
+              *ngIf="objectUrl(photo)"
+              [src]="objectUrl(photo)"
+              [alt]="photo.originalName"
+              class="photo-thumb"
+            />
+            <div *ngIf="!objectUrl(photo)" class="photo-thumb photo-thumb--loading">
+              <span>...</span>
+            </div>
+            <button
+              type="button"
+              class="photo-delete-btn"
+              title="Excluir foto"
+              [disabled]="deletingFileId === photo.id"
+              (click)="confirmDeleteFile(photo)"
+            >
+              {{ deletingFileId === photo.id ? '...' : '×' }}
+            </button>
+          </div>
+        </div>
+
+        <ng-template #noPhotos>
+          <p class="files-empty">Nenhuma foto de {{ cat.label.toLowerCase() }}</p>
+        </ng-template>
+      </div>
+
+      <!-- Separador -->
+      <hr class="files-divider" />
+
+      <!-- Anexos -->
+      <div class="attachments-section">
+        <div class="attachments-header">
+          <span class="photo-section__title">Documentos</span>
+          <label
+            class="upload-btn"
+            [class.upload-btn--disabled]="uploadingAttachment"
+          >
+            <input
+              type="file"
+              accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png"
+              (change)="uploadAttachment($event)"
+              [disabled]="uploadingAttachment"
+              hidden
+            />
+            {{ uploadingAttachment ? 'Enviando...' : '+ Documento' }}
+          </label>
+        </div>
+
+        <ul class="attachment-list" *ngIf="attachments.length > 0; else noAttachments">
+          <li class="attachment-item" *ngFor="let att of attachments">
+            <div class="attachment-info">
+              <span class="attachment-name">{{ att.originalName }}</span>
+              <span class="attachment-meta">{{ formatFileSize(att.fileSize) }}</span>
+            </div>
+            <button
+              type="button"
+              class="danger-action danger-action--small"
+              [disabled]="deletingFileId === att.id"
+              (click)="confirmDeleteFile(att)"
+            >
+              {{ deletingFileId === att.id ? '...' : 'Excluir' }}
+            </button>
+          </li>
+        </ul>
+
+        <ng-template #noAttachments>
+          <p class="files-empty">Nenhum documento anexado</p>
+        </ng-template>
+      </div>
+
+    </ng-container>
+  </section>
+
+</section>
+
+<app-confirm-dialog
+  [open]="filePendingDelete !== null"
+  title="Excluir arquivo"
+  [message]="filePendingDelete ? ('Excluir ' + filePendingDelete.originalName + '? Essa ação não pode ser desfeita.') : ''"
+  confirmLabel="Excluir arquivo"
+  (confirmed)="deleteFile()"
+  (cancelled)="filePendingDelete = null"
+></app-confirm-dialog>

@@ -1,0 +1,469 @@
+<section class="meal-plan-editor">
+  <header class="page-header">
+    <a class="back-link" routerLink="/meal-plans">Planos alimentares</a>
+    <div>
+      <p class="section-label">{{ isNewPlan ? 'Novo plano' : 'Editar plano' }}</p>
+      <h1>{{ titleControl.value || 'Plano alimentar' }}</h1>
+    </div>
+  </header>
+
+  <div
+    class="state-message"
+    role="status"
+    aria-live="polite"
+    [class.state-message--error]="messageTone === 'error'"
+    [class.state-message--success]="messageTone === 'success'"
+    *ngIf="message"
+  >
+    {{ message }}
+  </div>
+
+  <div class="state-message state-message--loading" role="status" aria-live="polite" *ngIf="pageState === 'loading'">
+    Carregando plano alimentar...
+  </div>
+
+  <div class="state-message state-message--loading" role="status" aria-live="polite" *ngIf="actionState === 'loading'">
+    {{ loadingMessage }}
+  </div>
+
+  <section class="panel">
+    <form class="plan-form" (submit)="savePlan(); $event.preventDefault()">
+      <label class="field field--title">
+        <span>Título do plano</span>
+        <input type="text" [formControl]="titleControl" />
+        <small *ngIf="titleControl.touched && titleControl.invalid">Informe um título.</small>
+      </label>
+
+      <label class="field">
+        <span>Paciente</span>
+        <select [formControl]="patientIdControl">
+          <option [ngValue]="null">Sem paciente vinculado</option>
+          <option *ngFor="let patient of patients" [ngValue]="patient.id">
+            {{ patient.name }}
+          </option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Objetivo</span>
+        <input type="text" [formControl]="objectiveControl" placeholder="Ex: redução de gordura" />
+      </label>
+
+      <label class="field">
+        <span>Status</span>
+        <select [formControl]="statusControl">
+          <option value="draft">Rascunho</option>
+          <option value="active">Ativo</option>
+          <option value="archived">Arquivado</option>
+        </select>
+      </label>
+
+      <label class="field field--description">
+        <span>Descrição</span>
+        <textarea rows="3" [formControl]="descriptionControl"></textarea>
+      </label>
+
+      <div class="plan-actions">
+        <button class="primary-action" type="submit" [disabled]="actionState === 'loading'">
+          {{ actionState === 'loading' ? 'Salvando...' : 'Salvar' }}
+        </button>
+
+        <button
+          class="secondary-action"
+          type="button"
+          *ngIf="selectedPlan"
+          (click)="duplicateCurrentPlan()"
+          [disabled]="actionState === 'loading'"
+        >
+          {{ duplicatingPlan ? 'Duplicando...' : 'Duplicar plano' }}
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="save-first" *ngIf="!selectedPlan && pageState !== 'loading'">
+    <p class="section-label">Editor</p>
+    <h2>Salve o plano para adicionar refeições e alimentos</h2>
+  </section>
+
+  <section class="planner" *ngIf="selectedPlan">
+    <aside class="panel meal-builder">
+      <div>
+        <p class="section-label">Refeições</p>
+        <h2>{{ editingMeal ? 'Editar refeição' : 'Adicionar refeição' }}</h2>
+      </div>
+
+      <form class="meal-form" (submit)="saveMeal(); $event.preventDefault()">
+        <label class="field field--meal-name">
+          <span>Nome</span>
+          <input type="text" [formControl]="mealNameControl" />
+        </label>
+
+        <label class="field field--meal-time">
+          <span>Horário</span>
+          <input type="time" step="60" [formControl]="mealTimeControl" />
+          <small *ngIf="mealTimeControl.touched && mealTimeControl.invalid">Use horas e minutos.</small>
+        </label>
+
+        <label class="field field--meal-order">
+          <span>Ordem</span>
+          <input type="number" min="0" step="1" [formControl]="mealOrderControl" />
+        </label>
+
+        <div class="form-actions">
+          <button class="primary-action" type="submit" [disabled]="actionState === 'loading'">
+            {{ editingMeal ? 'Salvar refeição' : 'Adicionar refeição' }}
+          </button>
+          <button class="secondary-action" type="button" *ngIf="editingMeal" (click)="resetMealForm()">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </aside>
+
+    <section class="meal-stack">
+      <article class="meal-card" *ngFor="let meal of selectedPlan.meals; let firstMeal = first; let lastMeal = last">
+        <header class="meal-card__header">
+          <div>
+            <p class="section-label">{{ meal.timeLabel || 'Sem horário' }}</p>
+            <h2>{{ meal.name }}</h2>
+          </div>
+
+          <button
+            class="collapse-btn"
+            type="button"
+            [title]="isMealCollapsed(meal.id) ? 'Expandir alimentos' : 'Minimizar alimentos'"
+            (click)="toggleMealCollapse(meal.id)"
+          >
+            <span class="collapse-chevron" [class.collapse-chevron--collapsed]="isMealCollapsed(meal.id)">▾</span>
+          </button>
+        </header>
+
+        <section class="meal-nutrition-summary">
+          <h3>Resumo nutricional da refeição</h3>
+
+          <dl class="nutrition-strip">
+            <div>
+              <dt>kcal</dt>
+              <dd>{{ meal.totalKcal | number:'1.0-1' }}</dd>
+            </div>
+            <div>
+              <dt>carbo</dt>
+              <dd>{{ meal.totalCarbs | number:'1.0-1' }} g</dd>
+            </div>
+            <div>
+              <dt>proteína</dt>
+              <dd>{{ meal.totalProtein | number:'1.0-1' }} g</dd>
+            </div>
+            <div>
+              <dt>gordura</dt>
+              <dd>{{ meal.totalFat | number:'1.0-1' }} g</dd>
+            </div>
+            <div>
+              <dt>fibra</dt>
+              <dd>{{ meal.totalFiber | number:'1.0-1' }} g</dd>
+            </div>
+          </dl>
+        </section>
+
+        <div class="row-actions meal-card__actions">
+          <button
+            class="icon-action"
+            type="button"
+            title="Subir refeição"
+            (click)="moveMeal(meal, -1)"
+            [disabled]="firstMeal || actionState === 'loading'"
+          >
+            ↑
+          </button>
+          <button
+            class="icon-action"
+            type="button"
+            title="Descer refeição"
+            (click)="moveMeal(meal, 1)"
+            [disabled]="lastMeal || actionState === 'loading'"
+          >
+            ↓
+          </button>
+          <button class="secondary-action" type="button" (click)="startEditMeal(meal)">
+            Editar
+          </button>
+          <button
+            class="secondary-action"
+            type="button"
+            (click)="duplicateMeal(meal)"
+            [disabled]="actionState === 'loading'"
+          >
+            {{ duplicatingMealId === meal.id ? 'Duplicando...' : 'Duplicar' }}
+          </button>
+          <button class="danger-action" type="button" (click)="deleteMeal(meal)">
+            {{ deletingMealId === meal.id ? 'Removendo...' : 'Remover' }}
+          </button>
+        </div>
+
+        <ng-container *ngIf="!isMealCollapsed(meal.id)">
+
+        <div class="item-list" *ngIf="meal.items.length > 0">
+          <article class="item-row" *ngFor="let item of meal.items; let firstItem = first; let lastItem = last">
+            <div class="item-row__name">
+              <h3>{{ item.foodName }}</h3>
+              <p *ngIf="item.notes">{{ item.notes }}</p>
+              <span class="saved-pill" *ngIf="savingItemId === item.id">Salvando...</span>
+            </div>
+
+            <label class="quantity-field" [class.quantity-field--invalid]="invalidQuantityItemIds.has(item.id)">
+              <span>Quantidade (g)</span>
+              <input
+                type="number"
+                min="0.01"
+                step="0.01"
+                [value]="item.quantity"
+                (input)="previewItemQuantity(item, $event)"
+                (change)="saveItemQuantity(item)"
+                [disabled]="savingItemId === item.id"
+              />
+              <small *ngIf="invalidQuantityItemIds.has(item.id)">Informe um valor maior que zero.</small>
+            </label>
+
+            <dl class="item-metrics">
+              <div>
+                <dt>kcal</dt>
+                <dd>{{ item.kcal | number:'1.0-1' }}</dd>
+              </div>
+              <div>
+                <dt>carbo</dt>
+                <dd>{{ item.carbs | number:'1.0-1' }} g</dd>
+              </div>
+              <div>
+                <dt>prot.</dt>
+                <dd>{{ item.protein | number:'1.0-1' }} g</dd>
+              </div>
+            </dl>
+
+            <div class="row-actions item-row__actions">
+              <button
+                class="secondary-action"
+                type="button"
+                (click)="viewSubstitutions(item)"
+                [disabled]="substitutionState === 'loading' && substitutionItem?.id === item.id"
+              >
+                {{ substitutionState === 'loading' && substitutionItem?.id === item.id ? 'Calculando...' : 'Ver substituições' }}
+              </button>
+              <button
+                class="icon-action"
+                type="button"
+                title="Subir alimento"
+                (click)="moveItem(meal, item, -1)"
+                [disabled]="firstItem || actionState === 'loading'"
+              >
+                ↑
+              </button>
+              <button
+                class="icon-action"
+                type="button"
+                title="Descer alimento"
+                (click)="moveItem(meal, item, 1)"
+                [disabled]="lastItem || actionState === 'loading'"
+              >
+                ↓
+              </button>
+              <button class="danger-action" type="button" (click)="deleteItem(item)">
+                {{ deletingItemId === item.id ? 'Removendo...' : 'Remover' }}
+              </button>
+            </div>
+          </article>
+        </div>
+
+        <div class="empty-meal" *ngIf="meal.items.length === 0">
+          <strong>Nenhum alimento adicionado.</strong>
+          <span>Use o botão abaixo para montar esta refeição.</span>
+        </div>
+
+        <button
+          class="secondary-action add-food-button"
+          type="button"
+          (click)="startAddItem(meal)"
+          *ngIf="activeItemMealId !== meal.id"
+        >
+          Adicionar alimento
+        </button>
+
+        <form
+          class="item-form"
+          *ngIf="activeItemMealId === meal.id"
+          (submit)="saveItem(meal); $event.preventDefault()"
+        >
+
+          <label class="field field--full">
+            <span>Alimento</span>
+            <app-food-search (foodSelected)="selectFood($event)" />
+          </label>
+
+          <label class="field">
+            <span>Quantidade (g)</span>
+            <input type="number" min="0.01" step="0.01" [formControl]="itemQuantityControl" />
+          </label>
+
+          <label class="field">
+            <span>Ordem</span>
+            <input type="number" min="0" step="1" [formControl]="itemOrderControl" />
+          </label>
+
+          <label class="field field--full">
+            <span>Observações</span>
+            <textarea rows="2" [formControl]="itemNotesControl"></textarea>
+          </label>
+
+          <dl class="preview-strip field--full">
+            <div>
+              <dt>kcal</dt>
+              <dd>{{ itemPreview().kcal | number:'1.0-1' }}</dd>
+            </div>
+            <div>
+              <dt>carbo</dt>
+              <dd>{{ itemPreview().carbs | number:'1.0-1' }} g</dd>
+            </div>
+            <div>
+              <dt>proteína</dt>
+              <dd>{{ itemPreview().protein | number:'1.0-1' }} g</dd>
+            </div>
+            <div>
+              <dt>gordura</dt>
+              <dd>{{ itemPreview().fat | number:'1.0-1' }} g</dd>
+            </div>
+            <div>
+              <dt>fibra</dt>
+              <dd>{{ itemPreview().fiber | number:'1.0-1' }} g</dd>
+            </div>
+          </dl>
+
+          <div class="form-actions field--full">
+            <button class="primary-action" type="submit" [disabled]="actionState === 'loading'">
+              {{ actionState === 'loading' && activeItemMealId === meal.id ? 'Salvando...' : 'Adicionar alimento' }}
+            </button>
+            <button class="secondary-action" type="button" (click)="activeItemMealId = null">
+              Cancelar
+            </button>
+          </div>
+        </form>
+
+        </ng-container>
+      </article>
+
+      <section class="empty-state" *ngIf="selectedPlan.meals.length === 0">
+        <p class="section-label">Sem refeições</p>
+        <h2>Adicione uma refeição para começar a montar a dieta</h2>
+        <p>Crie a primeira refeição no painel lateral e depois adicione alimentos com busca rápida.</p>
+      </section>
+
+      <app-nutrition-summary-card
+        [totals]="planTotals()"
+        title="Resumo nutricional do plano"
+      />
+    </section>
+  </section>
+
+  <section class="substitution-overlay" *ngIf="substitutionItem">
+    <aside class="substitution-drawer" role="dialog" aria-modal="true">
+      <header class="substitution-drawer__header">
+        <div>
+          <p class="section-label">Substituições</p>
+          <h2>{{ substitutionItem.foodName }}</h2>
+        </div>
+
+        <button class="secondary-action" type="button" (click)="closeSubstitutions()">
+          Fechar
+        </button>
+      </header>
+
+      <article class="reference-card" *ngIf="substitutionResult">
+        <div>
+          <p class="section-label">Referência</p>
+          <h3>{{ substitutionResult.reference.food.name }}</h3>
+          <p>{{ substitutionResult.reference.quantity | number:'1.0-1' }} g</p>
+        </div>
+
+        <dl class="substitution-metrics">
+          <div>
+            <dt>kcal</dt>
+            <dd>{{ nutrientFromTotals(substitutionResult.reference.nutrients, 'kcal') | number:'1.0-1' }}</dd>
+          </div>
+          <div>
+            <dt>carbo</dt>
+            <dd>{{ nutrientFromTotals(substitutionResult.reference.nutrients, 'carbs') | number:'1.0-1' }} g</dd>
+          </div>
+          <div>
+            <dt>proteína</dt>
+            <dd>{{ nutrientFromTotals(substitutionResult.reference.nutrients, 'protein') | number:'1.0-1' }} g</dd>
+          </div>
+          <div>
+            <dt>gordura</dt>
+            <dd>{{ nutrientFromTotals(substitutionResult.reference.nutrients, 'fat') | number:'1.0-1' }} g</dd>
+          </div>
+          <div>
+            <dt>fibra</dt>
+            <dd>{{ nutrientFromTotals(substitutionResult.reference.nutrients, 'fiber') | number:'1.0-1' }} g</dd>
+          </div>
+        </dl>
+      </article>
+
+      <div class="state-message state-message--loading" role="status" aria-live="polite" *ngIf="substitutionState === 'loading'">
+        Calculando substituições...
+      </div>
+
+      <div class="state-message state-message--error" role="status" aria-live="polite" *ngIf="substitutionState === 'error'">
+        {{ substitutionMessage }}
+      </div>
+
+      <section class="substitution-list" *ngIf="substitutionResult">
+        <article class="substitution-card" *ngFor="let substitute of substitutionResult.substitutes">
+          <div class="substitution-card__header">
+            <div>
+              <h3>{{ substitute.food.name }}</h3>
+              <p>{{ substitute.quantity | number:'1.0-1' }} g sugeridos</p>
+            </div>
+          </div>
+
+          <dl class="substitution-metrics">
+            <div>
+              <dt>kcal</dt>
+              <dd>{{ nutrientFromTotals(substitute.nutrients, 'kcal') | number:'1.0-1' }}</dd>
+            </div>
+            <div>
+              <dt>carbo</dt>
+              <dd>{{ nutrientFromTotals(substitute.nutrients, 'carbs') | number:'1.0-1' }} g</dd>
+            </div>
+            <div>
+              <dt>proteína</dt>
+              <dd>{{ nutrientFromTotals(substitute.nutrients, 'protein') | number:'1.0-1' }} g</dd>
+            </div>
+            <div>
+              <dt>gordura</dt>
+              <dd>{{ nutrientFromTotals(substitute.nutrients, 'fat') | number:'1.0-1' }} g</dd>
+            </div>
+            <div>
+              <dt>fibra</dt>
+              <dd>{{ nutrientFromTotals(substitute.nutrients, 'fiber') | number:'1.0-1' }} g</dd>
+            </div>
+          </dl>
+
+          <dl class="difference-grid">
+            <div>
+              <dt>Dif. kcal</dt>
+              <dd>{{ formatDifference(substitute, 'kcal') }}</dd>
+            </div>
+            <div>
+              <dt>Dif. carbo</dt>
+              <dd>{{ formatDifference(substitute, 'carbs') }}</dd>
+            </div>
+          </dl>
+        </article>
+
+        <div class="empty-meal" *ngIf="substitutionResult.substitutes.length === 0">
+          <strong>Nenhuma substituição encontrada.</strong>
+          <span>Este alimento pode não ter alternativas dentro do mesmo grupo e tolerância configurada.</span>
+        </div>
+      </section>
+    </aside>
+  </section>
+</section>

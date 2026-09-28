@@ -1,0 +1,242 @@
+<section class="evo-page">
+
+  <header class="page-header">
+    <a class="back-link" [routerLink]="['/nutritionist/patients', patientId]">Paciente</a>
+    <p class="section-label">Avaliações Físicas</p>
+    <h1>Evolução</h1>
+  </header>
+
+  <!-- Estado de carregamento -->
+  <div class="state-message state-message--loading" role="status" aria-live="polite" *ngIf="viewState === 'loading'">
+    Carregando evolução...
+  </div>
+
+  <div class="state-message state-message--error" role="status" aria-live="polite" *ngIf="viewState === 'error'">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Sem avaliações -->
+  <div class="empty-state panel" *ngIf="viewState === 'idle' && !evolution?.current">
+    Nenhuma avaliação física registrada para este paciente.
+  </div>
+
+  <ng-container *ngIf="viewState === 'idle' && evolution?.current">
+
+    <!-- ── Cards de resumo ─────────────────────────────────────────────── -->
+    <div class="summary-grid">
+      <div class="summary-card" *ngFor="let card of summaryCards">
+        <p class="summary-card__label">{{ card.label }}</p>
+        <p class="summary-card__value" *ngIf="card.value !== null">
+          {{ card.value | number:card.format }}<span *ngIf="card.unit"> {{ card.unit }}</span>
+        </p>
+        <p class="summary-card__value summary-card__value--empty" *ngIf="card.value === null">—</p>
+        <span
+          class="diff-badge"
+          *ngIf="card.diff !== null"
+          [class.diff-badge--up]="card.diff > 0"
+          [class.diff-badge--down]="card.diff < 0"
+        >
+          {{ card.diff > 0 ? '▲' : '▼' }}
+          {{ card.diff | number:card.format }}{{ card.unit ? ' ' + card.unit : '' }}
+          <span class="diff-badge__vs">vs. anterior</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- ── Gráficos ────────────────────────────────────────────────────── -->
+    <section class="panel" *ngIf="hasEnoughData">
+      <div class="panel__header">
+        <div>
+          <p class="section-label">Gráficos</p>
+          <h2>Evolução ao longo do tempo</h2>
+        </div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-card" *ngIf="weightPoints.length >= 2">
+          <p class="chart-card__title">Peso (kg)</p>
+          <app-line-chart [points]="weightPoints" unit="kg" color="#db2777" title="Evolução do peso" />
+        </div>
+        <div class="chart-card" *ngIf="bmiPoints.length >= 2">
+          <p class="chart-card__title">IMC</p>
+          <app-line-chart [points]="bmiPoints" color="#7c3aed" title="Evolução do IMC" />
+        </div>
+        <div class="chart-card" *ngIf="waistPoints.length >= 2">
+          <p class="chart-card__title">Cintura (cm)</p>
+          <app-line-chart [points]="waistPoints" unit="cm" color="#0891b2" title="Evolução da cintura" />
+        </div>
+        <div class="chart-card" *ngIf="abdomenPoints.length >= 2">
+          <p class="chart-card__title">Abdômen (cm)</p>
+          <app-line-chart [points]="abdomenPoints" unit="cm" color="#059669" title="Evolução do abdômen" />
+        </div>
+        <div class="chart-card" *ngIf="bodyFatPoints.length >= 2">
+          <p class="chart-card__title">% Gordura corporal</p>
+          <app-line-chart [points]="bodyFatPoints" unit="%" color="#ea580c" title="Evolução da gordura corporal" />
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Comparação vs. Avaliação Anterior ──────────────────────────── -->
+    <section class="panel" *ngIf="vsPreviousRows.length > 0">
+      <div class="panel__header">
+        <div>
+          <p class="section-label">Comparação</p>
+          <h2>Avaliação atual vs. anterior</h2>
+        </div>
+      </div>
+      <p class="comparison-dates" *ngIf="evolution?.previous && evolution?.current">
+        {{ evolution!.previous!.evaluatedAt | date:'dd/MM/yyyy':'UTC' }}
+        → {{ evolution!.current!.evaluatedAt | date:'dd/MM/yyyy':'UTC' }}
+      </p>
+
+      <div class="table-wrapper">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Medida</th>
+              <th>Anterior</th>
+              <th>Atual</th>
+              <th>Diferença</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of vsPreviousRows">
+              <td class="row-label">{{ row.label }}</td>
+              <td>
+                <span *ngIf="row.reference !== null">{{ row.reference | number:'1.0-2' }}<span *ngIf="row.unit"> {{ row.unit }}</span></span>
+                <span *ngIf="row.reference === null" class="muted">—</span>
+              </td>
+              <td>
+                <span *ngIf="row.current !== null">{{ row.current | number:'1.0-2' }}<span *ngIf="row.unit"> {{ row.unit }}</span></span>
+                <span *ngIf="row.current === null" class="muted">—</span>
+              </td>
+              <td>
+                <span
+                  *ngIf="row.diff !== null"
+                  class="diff-value"
+                  [class.diff-value--up]="row.diff > 0"
+                  [class.diff-value--down]="row.diff < 0"
+                >
+                  {{ row.diff > 0 ? '+' : '' }}{{ row.diff | number:'1.0-2' }}<span *ngIf="row.unit"> {{ row.unit }}</span>
+                  <small *ngIf="row.diffPct !== null">({{ row.diffPct > 0 ? '+' : '' }}{{ row.diffPct | number:'1.0-1' }}%)</small>
+                </span>
+                <span *ngIf="row.diff === null" class="muted">—</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── Comparação vs. Primeira Avaliação ──────────────────────────── -->
+    <section class="panel" *ngIf="vsFirstRows.length > 0 && evolution?.first?.id !== evolution?.previous?.id">
+      <div class="panel__header">
+        <div>
+          <p class="section-label">Evolução total</p>
+          <h2>Avaliação atual vs. primeira</h2>
+        </div>
+      </div>
+      <p class="comparison-dates" *ngIf="evolution?.first && evolution?.current">
+        {{ evolution!.first!.evaluatedAt | date:'dd/MM/yyyy':'UTC' }}
+        → {{ evolution!.current!.evaluatedAt | date:'dd/MM/yyyy':'UTC' }}
+      </p>
+
+      <div class="table-wrapper">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Medida</th>
+              <th>1ª Avaliação</th>
+              <th>Atual</th>
+              <th>Diferença</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of vsFirstRows">
+              <td class="row-label">{{ row.label }}</td>
+              <td>
+                <span *ngIf="row.reference !== null">{{ row.reference | number:'1.0-2' }}<span *ngIf="row.unit"> {{ row.unit }}</span></span>
+                <span *ngIf="row.reference === null" class="muted">—</span>
+              </td>
+              <td>
+                <span *ngIf="row.current !== null">{{ row.current | number:'1.0-2' }}<span *ngIf="row.unit"> {{ row.unit }}</span></span>
+                <span *ngIf="row.current === null" class="muted">—</span>
+              </td>
+              <td>
+                <span
+                  *ngIf="row.diff !== null"
+                  class="diff-value"
+                  [class.diff-value--up]="row.diff > 0"
+                  [class.diff-value--down]="row.diff < 0"
+                >
+                  {{ row.diff > 0 ? '+' : '' }}{{ row.diff | number:'1.0-2' }}<span *ngIf="row.unit"> {{ row.unit }}</span>
+                  <small *ngIf="row.diffPct !== null">({{ row.diffPct > 0 ? '+' : '' }}{{ row.diffPct | number:'1.0-1' }}%)</small>
+                </span>
+                <span *ngIf="row.diff === null" class="muted">—</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── Histórico ──────────────────────────────────────────────────── -->
+    <section class="panel">
+      <div class="panel__header">
+        <div>
+          <p class="section-label">Histórico</p>
+          <h2>Todas as avaliações</h2>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Peso</th>
+              <th>IMC</th>
+              <th>Cintura</th>
+              <th>Abdômen</th>
+              <th *ngIf="hasBodyFatData">% Gordura</th>
+              <th class="col-goal">Objetivo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let ev of historyRows"
+              [class.row--current]="ev.id === evolution?.current?.id"
+            >
+              <td>{{ ev.evaluatedAt | date:'dd/MM/yyyy':'UTC' }}</td>
+              <td>{{ ev.weightKg | number:'1.0-1' }} kg</td>
+              <td>{{ ev.bmi | number:'1.0-2' }}</td>
+              <td>
+                <span *ngIf="ev.waistCm !== null">{{ ev.waistCm | number:'1.0-1' }} cm</span>
+                <span *ngIf="ev.waistCm === null" class="muted">—</span>
+              </td>
+              <td>
+                <span *ngIf="ev.abdomenCm !== null">{{ ev.abdomenCm | number:'1.0-1' }} cm</span>
+                <span *ngIf="ev.abdomenCm === null" class="muted">—</span>
+              </td>
+              <td *ngIf="hasBodyFatData">
+                <span *ngIf="bodyFatForEvaluation(ev) !== null">{{ bodyFatForEvaluation(ev) | number:'1.1-1' }}%</span>
+                <span *ngIf="bodyFatForEvaluation(ev) === null" class="muted">—</span>
+              </td>
+              <td class="col-goal">
+                <span *ngIf="ev.goal">{{ ev.goal }}</span>
+                <span *ngIf="!ev.goal" class="muted">—</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Aviso: poucas avaliações -->
+    <div class="state-message" role="status" aria-live="polite" *ngIf="!hasEnoughData">
+      Registre pelo menos 2 avaliações para ver gráficos e comparações.
+    </div>
+
+  </ng-container>
+
+</section>

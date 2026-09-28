@@ -1,0 +1,59 @@
+<main class="app-shell">
+  <header class="topbar">
+    <a class="brand" routerLink="/" aria-label="Smart Nutri">
+      <span class="brand__mark">SN</span>
+      <span class="brand__name">Smart Nutri</span>
+    </a>
+
+    <div class="topbar__actions" *ngIf="currentUser$ | async as user">
+      <nav
+        class="topbar-nav"
+        id="primary-nav"
+        [class.topbar-nav--patient]="user.role === 'patient'"
+        [class.topbar-nav--open]="mobileMenuOpen"
+        aria-label="Navegação principal"
+        (click)="closeMobileMenu()"
+      >
+        <ng-container *ngIf="user.role === 'patient'; else staffLinks">
+          <a routerLink="/minha-dieta">Minha dieta</a>
+          <a routerLink="/refeicoes">Refeições</a>
+          <a routerLink="/calculator">Cálculo</a>
+          <a routerLink="/conta">Minha conta</a>
+        </ng-container>
+        <ng-template #staffLinks>
+          <a routerLink="/nutritionist">Painel</a>
+          <a routerLink="/nutritionist/patients">Pacientes</a>
+          <a routerLink="/nutritionist/refeicoes" *ngIf="user.role === 'nutritionist'">Refeições</a>
+          <a routerLink="/meal-plans">Planos</a>
+          <a routerLink="/nutritionist/users">Usuários</a>
+          <a routerLink="/calculator">Cálculo</a>
+          <a routerLink="/conta">Minha conta</a>
+        </ng-template>
+      </nav>
+
+      <button
+        class="menu-toggle"
+        type="button"
+        *ngIf="user.role !== 'patient'"
+        (click)="toggleMobileMenu()"
+        [attr.aria-expanded]="mobileMenuOpen"
+        aria-controls="primary-nav"
+        aria-label="Abrir menu de navegação"
+      >
+        <span class="menu-toggle__bar"></span>
+        <span class="menu-toggle__bar"></span>
+        <span class="menu-toggle__bar"></span>
+      </button>
+
+      <button
+        class="topbar__button"
+        type="button"
+        (click)="logout()"
+      >
+        Sair
+      </button>
+    </div>
+  </header>
+
+  <router-outlet />
+</main>

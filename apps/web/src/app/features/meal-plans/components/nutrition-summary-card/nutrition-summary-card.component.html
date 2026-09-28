@@ -1,0 +1,47 @@
+<section class="nutrition-card" [class.nutrition-card--soft]="tone === 'soft'">
+  <h3>{{ title }}</h3>
+
+  <div class="nutrition-body">
+
+    <!-- Valores numéricos -->
+    <dl class="nutrition-card__grid">
+      <div *ngFor="let nutrient of nutrients">
+        <dt>{{ nutrient.label }}</dt>
+        <dd>
+          {{ valueOf(nutrient.key) | number:'1.0-1' }}
+          <small>{{ nutrient.unit }}</small>
+        </dd>
+      </div>
+    </dl>
+
+    <!-- Gráfico de pizza (macros em kcal) -->
+    <div class="macro-chart" *ngIf="showChart && hasMacros">
+      <svg class="pie-svg" viewBox="0 0 160 160" aria-hidden="true">
+        <path
+          *ngFor="let s of macroSlices"
+          [attr.d]="s.path"
+          [attr.fill]="s.color"
+          stroke="white"
+          stroke-width="2.5"
+          stroke-linejoin="round"
+        />
+        <text x="80" y="77" text-anchor="middle" dominant-baseline="auto" class="pie-kcal">
+          {{ valueOf('kcal') | number:'1.0-0' }}
+        </text>
+        <text x="80" y="94" text-anchor="middle" dominant-baseline="auto" class="pie-unit">
+          kcal
+        </text>
+      </svg>
+
+      <ul class="macro-legend">
+        <li *ngFor="let s of macroSlices">
+          <span class="legend-dot" [style.background]="s.color"></span>
+          <span class="legend-name">{{ s.label }}</span>
+          <span class="legend-pct">{{ s.pct | number:'1.0-0' }}%</span>
+          <span class="legend-g">{{ s.grams | number:'1.0-0' }}g</span>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</section>

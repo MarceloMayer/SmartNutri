@@ -1,0 +1,320 @@
+<section class="dashboard">
+  <header class="dashboard__header">
+    <p class="section-label">Nutricionista</p>
+    <h1>
+      {{
+        activeSection === 'foods'
+          ? 'Alimentos'
+          : activeSection === 'groups'
+            ? 'Grupos de substituição'
+            : 'Configurações de cálculo'
+      }}
+    </h1>
+  </header>
+
+  <nav class="dashboard-menu" aria-label="Menu da nutricionista">
+    <a
+      class="dashboard-menu__item"
+      routerLink="/nutritionist/patients"
+    >
+      Pacientes
+    </a>
+    <a
+      class="dashboard-menu__item"
+      routerLink="/meal-plans"
+    >
+      Planos alimentares
+    </a>
+    <a
+      class="dashboard-menu__item"
+      routerLink="/nutritionist/users"
+    >
+      Usuários
+    </a>
+    <a
+      [class.dashboard-menu__item--active]="activeSection === 'foods'"
+      class="dashboard-menu__item"
+      routerLink="/nutritionist/foods"
+    >
+      Alimentos
+    </a>
+    <a
+      [class.dashboard-menu__item--active]="activeSection === 'groups'"
+      class="dashboard-menu__item"
+      routerLink="/nutritionist/substitution-groups"
+    >
+      Grupos de substituição
+    </a>
+    <a
+      [class.dashboard-menu__item--active]="activeSection === 'settings'"
+      class="dashboard-menu__item"
+      routerLink="/nutritionist/calculation-settings"
+    >
+      Configurações de cálculo
+    </a>
+  </nav>
+
+  <section class="panel" *ngIf="activeSection === 'foods'">
+    <div class="panel__header">
+      <div>
+        <p class="section-label">Alimentos</p>
+        <h2>Base nutricional</h2>
+      </div>
+
+      <form class="search-form" (submit)="searchFoods(); $event.preventDefault()">
+        <input
+          type="search"
+          placeholder="Buscar alimento"
+          [formControl]="foodSearchControl"
+        />
+        <button type="submit">Buscar</button>
+      </form>
+    </div>
+
+    <div class="state-message state-message--loading" role="status" aria-live="polite" *ngIf="foodState === 'loading'">
+      Carregando alimentos...
+    </div>
+
+    <div class="state-message state-message--error" role="status" aria-live="polite" *ngIf="foodState === 'error'">
+      {{ foodErrorMessage }}
+    </div>
+
+    <p class="empty-state" *ngIf="foodState === 'idle' && foods.length === 0">
+      Nenhum alimento encontrado para essa busca.
+    </p>
+
+    <div class="content-grid" *ngIf="foods.length > 0">
+      <div class="list">
+        <button
+          class="list-row"
+          type="button"
+          *ngFor="let food of foods"
+          [class.list-row--active]="selectedFood?.id === food.id"
+          (click)="selectFood(food)"
+        >
+          <span>{{ food.name }}</span>
+          <small *ngIf="food.source">{{ food.source }}</small>
+          <small *ngIf="food.groups">{{ food.groups.length }} grupos</small>
+        </button>
+      </div>
+
+      <article class="detail" *ngIf="selectedFood">
+        <p class="section-label">Detalhes</p>
+        <h3>{{ selectedFood.name }}</h3>
+        <p class="muted">Código TACO: {{ selectedFood.tacoCode || '-' }}</p>
+
+        <div class="preference-actions">
+          <button
+            class="secondary-action"
+            type="button"
+            [class.preference-actions__button--active]="getFoodPreference(selectedFood.id) === 'favorite'"
+            (click)="setSelectedFoodPreference('favorite')"
+          >
+            Favorito
+          </button>
+          <button
+            class="secondary-action"
+            type="button"
+            [class.preference-actions__button--active]="getFoodPreference(selectedFood.id) === 'avoid'"
+            (click)="setSelectedFoodPreference('avoid')"
+          >
+            Evitar
+          </button>
+          <button
+            class="secondary-action"
+            type="button"
+            *ngIf="getFoodPreference(selectedFood.id)"
+            (click)="clearSelectedFoodPreference()"
+          >
+            Limpar
+          </button>
+        </div>
+
+        <div class="state-message" role="status" aria-live="polite" *ngIf="preferenceActionMessage">
+          {{ preferenceActionMessage }}
+        </div>
+
+        <dl class="nutrition-grid">
+          <div>
+            <dt>kcal</dt>
+            <dd>{{ formatValue(selectedFood.kcalPer100g, 'kcal') }}</dd>
+          </div>
+          <div>
+            <dt>carbo</dt>
+            <dd>{{ formatValue(selectedFood.carbsPer100g, 'g') }}</dd>
+          </div>
+          <div>
+            <dt>proteina</dt>
+            <dd>{{ formatValue(selectedFood.proteinPer100g, 'g') }}</dd>
+          </div>
+          <div>
+            <dt>gordura</dt>
+            <dd>{{ formatValue(selectedFood.fatPer100g, 'g') }}</dd>
+          </div>
+          <div>
+            <dt>fibra</dt>
+            <dd>{{ formatValue(selectedFood.fiberPer100g, 'g') }}</dd>
+          </div>
+        </dl>
+      </article>
+    </div>
+  </section>
+
+  <section class="panel" *ngIf="activeSection === 'groups'">
+    <div class="panel__header">
+      <div>
+        <p class="section-label">Grupos</p>
+        <h2>Curadoria de substituição</h2>
+      </div>
+
+      <button class="secondary-action" type="button" (click)="startCreateGroup()">
+        Novo grupo
+      </button>
+    </div>
+
+    <div class="state-message state-message--loading" role="status" aria-live="polite" *ngIf="groupState === 'loading'">
+      Carregando grupos...
+    </div>
+
+    <div class="state-message state-message--error" role="status" aria-live="polite" *ngIf="groupState === 'error'">
+      {{ groupErrorMessage }}
+    </div>
+
+    <div class="content-grid">
+      <div class="list">
+        <button
+          class="list-row"
+          type="button"
+          *ngFor="let group of groups"
+          [class.list-row--active]="selectedGroup?.id === group.id"
+          (click)="selectGroup(group)"
+        >
+          <span>{{ group.name }}</span>
+          <small>{{ group.slug }}</small>
+          <small>{{ group.isActive === false ? 'Inativo' : 'Ativo' }}</small>
+        </button>
+      </div>
+
+      <div class="group-workspace">
+        <form class="detail" (submit)="saveGroup(); $event.preventDefault()">
+          <p class="section-label">{{ groupFormMode === 'edit' ? 'Editar grupo' : 'Criar grupo' }}</p>
+          <h3>{{ groupFormMode === 'edit' ? selectedGroup?.name : 'Novo grupo' }}</h3>
+
+          <label class="field">
+            <span>Nome</span>
+            <input type="text" [formControl]="groupNameControl" />
+            <small *ngIf="groupNameControl.touched && groupNameControl.invalid">
+              Informe um nome com pelo menos 2 caracteres.
+            </small>
+          </label>
+
+          <label class="field">
+            <span>Descrição</span>
+            <textarea rows="3" [formControl]="groupDescriptionControl"></textarea>
+          </label>
+
+          <div class="form-actions">
+            <button class="primary-action" type="submit" [disabled]="groupActionState === 'loading'">
+              {{ groupFormMode === 'edit' ? 'Salvar grupo' : 'Criar grupo' }}
+            </button>
+
+            <button
+              class="secondary-action"
+              type="button"
+              *ngIf="selectedGroup"
+              (click)="toggleSelectedGroupStatus()"
+              [disabled]="groupActionState === 'loading'"
+            >
+              {{ selectedGroup.isActive === false ? 'Ativar grupo' : 'Desativar grupo' }}
+            </button>
+          </div>
+
+          <div
+            class="state-message"
+            role="status"
+            aria-live="polite"
+            [class.state-message--error]="groupActionState === 'error'"
+            *ngIf="groupActionMessage"
+          >
+            {{ groupActionMessage }}
+          </div>
+        </form>
+
+        <article class="detail" *ngIf="selectedGroup">
+          <p class="section-label">Alimentos vinculados</p>
+          <h3>{{ selectedGroup.name }}</h3>
+
+          <form class="search-form" (submit)="searchGroupFoods(); $event.preventDefault()">
+            <input
+              type="search"
+              placeholder="Buscar alimento para adicionar"
+              [formControl]="groupFoodSearchControl"
+            />
+            <button type="submit">Buscar</button>
+          </form>
+
+          <div
+            class="state-message"
+            role="status"
+            aria-live="polite"
+            [class.state-message--error]="groupFoodSearchState === 'error'"
+            *ngIf="groupFoodActionMessage"
+          >
+            {{ groupFoodActionMessage }}
+          </div>
+
+          <div class="candidate-list" *ngIf="groupFoodCandidates.length > 0">
+            <button
+              type="button"
+              class="candidate-row"
+              *ngFor="let food of groupFoodCandidates"
+              (click)="addFoodToSelectedGroup(food)"
+              [disabled]="isFoodLinkedToSelectedGroup(food.id)"
+            >
+              <span>{{ food.name }}</span>
+              <small>{{ isFoodLinkedToSelectedGroup(food.id) ? 'Já vinculado' : 'Adicionar' }}</small>
+            </button>
+          </div>
+
+          <div class="linked-foods">
+            <div class="linked-food" *ngFor="let food of groupFoods">
+              <div>
+                <span>{{ food.name }}</span>
+                <small>{{ formatValue(food.kcalPer100g, 'kcal') }} / 100 g</small>
+              </div>
+
+              <button
+                class="link-action"
+                type="button"
+                (click)="removeFoodFromSelectedGroup(food)"
+                [disabled]="groupFoodSearchState === 'loading'"
+              >
+                Remover
+              </button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" *ngIf="activeSection === 'settings'">
+    <div class="panel__header">
+      <div>
+        <p class="section-label">Cálculo</p>
+        <h2>Parâmetros do sistema</h2>
+      </div>
+    </div>
+
+    <p class="settings-hint">
+      Estes valores são padrões fixos do sistema e não podem ser editados nesta versão.
+    </p>
+
+    <dl class="settings-list">
+      <div *ngFor="let setting of calculationSettings">
+        <dt>{{ setting.label }}</dt>
+        <dd>{{ setting.value }}</dd>
+      </div>
+    </dl>
+  </section>
+</section>

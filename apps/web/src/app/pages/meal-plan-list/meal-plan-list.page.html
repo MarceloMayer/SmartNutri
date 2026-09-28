@@ -1,0 +1,73 @@
+<section class="meal-plans-page">
+  <header class="page-header">
+    <div>
+      <p class="section-label">Planos alimentares</p>
+      <h1>Dietas</h1>
+    </div>
+
+    <a class="primary-action" routerLink="/meal-plans/new">
+      Novo plano
+    </a>
+  </header>
+
+  <div class="state-message state-message--loading" role="status" aria-live="polite" *ngIf="state === 'loading'">
+    Carregando planos alimentares...
+  </div>
+
+  <div class="state-message state-message--error" role="status" aria-live="polite" *ngIf="state === 'error'">
+    {{ message }}
+  </div>
+
+  <div class="state-message state-message--error" role="status" aria-live="polite" *ngIf="actionState === 'error'">
+    {{ message }}
+  </div>
+
+  <section class="empty-state" *ngIf="state === 'idle' && mealPlans.length === 0">
+    <p class="section-label">Nenhum plano</p>
+    <h2>Crie o primeiro plano alimentar</h2>
+    <p>Os planos criados aparecerão aqui com totais nutricionais e paciente vinculado.</p>
+    <a class="primary-action" routerLink="/meal-plans/new">Criar plano</a>
+  </section>
+
+  <section class="plan-list" *ngIf="mealPlans.length > 0">
+    <article class="plan-card" *ngFor="let plan of mealPlans">
+      <div class="plan-card__main">
+        <div>
+          <span class="status-pill" [class.status-pill--archived]="plan.status === 'archived'">
+            {{ statusLabel(plan.status) }}
+          </span>
+          <h2>{{ plan.title }}</h2>
+        </div>
+
+        <p>{{ patientName(plan) }}</p>
+        <p>{{ plan.objective || 'Sem objetivo informado' }}</p>
+      </div>
+
+      <dl class="plan-card__metrics">
+        <div>
+          <dt>kcal</dt>
+          <dd>{{ plan.totalKcal | number:'1.0-0' }}</dd>
+        </div>
+        <div>
+          <dt>Atualizado</dt>
+          <dd>{{ plan.updatedAt | date:'dd/MM/yy' }}</dd>
+        </div>
+      </dl>
+
+      <div class="plan-card__actions">
+        <a class="secondary-action" [routerLink]="['/meal-plans', plan.id, 'edit']">
+          Editar
+        </a>
+
+        <button
+          class="secondary-action"
+          type="button"
+          (click)="duplicatePlan(plan)"
+          [disabled]="actionState === 'loading'"
+        >
+          {{ duplicatingPlanId === plan.id ? 'Duplicando...' : 'Duplicar' }}
+        </button>
+      </div>
+    </article>
+  </section>
+</section>

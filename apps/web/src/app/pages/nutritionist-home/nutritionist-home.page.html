@@ -1,0 +1,30 @@
+<section class="dashboard-home">
+  <header class="hero">
+    <div>
+      <p class="section-label">Painel inicial</p>
+      <h1>Olá, Nutricionista</h1>
+      <p>Gerencie pacientes, planos alimentares e substituições em poucos cliques.</p>
+    </div>
+
+    <a class="primary-action" routerLink="/meal-plans/new">
+      + Novo plano alimentar
+    </a>
+  </header>
+
+  <section class="quick-access" aria-label="Acessos rápidos">
+    <a
+      class="quick-card"
+      *ngFor="let card of quickAccessCards"
+      [routerLink]="card.route"
+    >
+      <span class="quick-card__icon">
+        <app-dashboard-icon [name]="card.icon" />
+      </span>
+
+      <span class="quick-card__content">
+        <strong>{{ card.title }}</strong>
+        <span>{{ card.description }}</span>
+      </span>
+    </a>
+  </section>
+</section>

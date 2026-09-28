@@ -1,0 +1,38 @@
+<section class="food-search">
+  <label class="search-field">
+    <span>Alimento</span>
+    <input
+      type="search"
+      autocomplete="off"
+      placeholder="Ex.: arroz integral"
+      [formControl]="searchControl"
+    />
+  </label>
+
+  <ng-container *ngIf="!selectedFood && (searchState$ | async) as state">
+    <div class="results" *ngIf="state.isLoading || state.error || state.term.length >= 2">
+      <p class="status" *ngIf="state.isLoading">Buscando alimentos...</p>
+      <p class="status status--error" *ngIf="state.error">{{ state.error }}</p>
+      <p class="status" *ngIf="!state.isLoading && !state.error && state.foods.length === 0">
+        Nenhum alimento encontrado.
+      </p>
+
+      <div class="result-list" *ngIf="state.foods.length > 0">
+        <button
+          class="result"
+          type="button"
+          *ngFor="let food of state.foods"
+          (click)="selectFood(food)"
+        >
+          <span class="result__name">{{ food.name }}</span>
+          <span class="result__meta">
+            <ng-container *ngIf="food.groups.length > 0; else noGroup">
+              {{ food.groups[0].name }}
+            </ng-container>
+            <ng-template #noGroup>Sem grupo</ng-template>
+          </span>
+        </button>
+      </div>
+    </div>
+  </ng-container>
+</section>

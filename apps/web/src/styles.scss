@@ -1,0 +1,313 @@
+:root {
+  --color-primary: #db2777;
+  --color-primary-dark: #be185d;
+  --color-primary-bg: #fdf2f8;
+  --color-primary-border: #f9a8d4;
+
+  --color-text: #162033;
+  --color-text-secondary: #445064;
+  --color-text-muted: #657184;
+
+  --color-border: #dfe5ec;
+  --color-border-strong: #c7d0da;
+
+  --color-bg: #f7f8fa;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #fbfcfd;
+
+  --color-danger: #b42318;
+  --color-danger-border: #f3b8b2;
+  --color-danger-bg: #fff4f2;
+
+  --color-success: #065f46;
+  --color-success-border: #a7f3d0;
+  --color-success-bg: #f0fdf9;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: var(--color-bg);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* Shared feed primitives live here to keep the lazy page stylesheet compact. */
+.meal-feed-page,
+.meal-feed-page .composer,
+.meal-feed-page .composer__section,
+.meal-feed-page .feed-list,
+.meal-feed-page .feed-card__content,
+.meal-feed-page .comments,
+.meal-feed-page .comment-list,
+.meal-feed-page .empty-state {
+  display: grid;
+  gap: 16px;
+}
+
+.meal-feed-page {
+  width: min(100%, 780px);
+  margin: 0 auto;
+  padding: 26px 16px 48px;
+}
+
+.meal-feed-page h1,
+.meal-feed-page h2,
+.meal-feed-page h3,
+.meal-feed-page p {
+  margin: 0;
+}
+
+.meal-feed-page .page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 4px;
+}
+
+.meal-feed-page .page-header > div {
+  display: grid;
+  gap: 5px;
+}
+
+.meal-feed-page .section-label {
+  color: var(--color-primary);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.meal-feed-page .page-header h1 {
+  color: var(--color-text);
+  font-size: clamp(1.9rem, 5vw, 2.35rem);
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+
+.meal-feed-page .page-header p:last-child,
+.meal-feed-page .quick-add p,
+.meal-feed-page .composer__title p:last-child,
+.meal-feed-page .privacy-field__intro,
+.meal-feed-page .empty-state p {
+  color: var(--color-text-muted);
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.meal-feed-page .panel {
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+  box-shadow: 0 14px 34px rgba(22, 32, 51, 0.055);
+}
+
+.meal-feed-page .refresh-action,
+.meal-feed-page .close-action,
+.meal-feed-page .comment-trigger {
+  border: 0;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.meal-feed-page .refresh-action {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 5px;
+  min-height: 36px;
+  margin-top: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  padding: 0 10px;
+  background: #ffffff;
+}
+
+.meal-feed-page .refresh-action span {
+  color: var(--color-primary-dark);
+  font-size: 1.05rem;
+}
+
+.meal-feed-page .refresh-action:disabled,
+.meal-feed-page .close-action:disabled,
+.meal-feed-page .primary-action:disabled,
+.meal-feed-page .comment-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.meal-feed-page .quick-add {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  background: linear-gradient(135deg, #ffffff 15%, var(--color-primary-bg));
+}
+
+.meal-feed-page .quick-add__icon,
+.meal-feed-page .composer__icon,
+.meal-feed-page .empty-state__icon {
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.meal-feed-page .quick-add__icon {
+  width: 40px;
+  height: 40px;
+  font-size: 1.5rem;
+}
+
+.meal-feed-page .quick-add h2,
+.meal-feed-page .composer h2,
+.meal-feed-page .feed-card h2,
+.meal-feed-page .empty-state h2 {
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.meal-feed-page .quick-add .primary-action {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.meal-feed-page .composer {
+  gap: 20px;
+  padding: 19px;
+}
+
+.meal-feed-page .composer__heading,
+.meal-feed-page .composer__title,
+.meal-feed-page .composer__footer,
+.meal-feed-page .feed-card__header,
+.meal-feed-page .comments__title,
+.meal-feed-page .comment,
+.meal-feed-page .author,
+.meal-feed-page .meal-title-row {
+  display: flex;
+}
+
+.meal-feed-page .composer__heading,
+.meal-feed-page .feed-card__header,
+.meal-feed-page .comments__title {
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.meal-feed-page .composer__title {
+  align-items: flex-start;
+  gap: 11px;
+}
+
+.meal-feed-page .composer__title > div {
+  display: grid;
+  gap: 3px;
+}
+
+.meal-feed-page .composer__icon {
+  width: 35px;
+  height: 35px;
+  flex: 0 0 auto;
+  font-size: 1rem;
+}
+
+.meal-feed-page .close-action {
+  flex: 0 0 auto;
+  min-height: 32px;
+  color: var(--color-text-muted);
+}
+
+.meal-feed-page .composer__section {
+  gap: 12px;
+}
+
+.meal-feed-page .step-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--color-text-secondary);
+  font-size: 0.81rem;
+  font-weight: 850;
+}
+
+.meal-feed-page .step-label > span {
+  display: grid;
+  width: 21px;
+  height: 21px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-primary-bg);
+  color: var(--color-primary-dark);
+  font-size: 0.7rem;
+}
+
+.meal-feed-page .field {
+  display: grid;
+  gap: 7px;
+}
+
+.meal-feed-page .field > span {
+  color: var(--color-text-secondary);
+  font-size: 0.87rem;
+  font-weight: 800;
+}
+
+.meal-feed-page .field em {
+  color: var(--color-text-muted);
+  font-style: normal;
+  font-weight: 650;
+}
+
+.meal-feed-page .field input,
+.meal-feed-page .field textarea,
+.meal-feed-page .comment-form input {
+  width: 100%;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 10px;
+  padding: 11px 12px;
+  background: #ffffff;
+  color: var(--color-text);
+  outline: none;
+}
+
+.meal-feed-page .field textarea {
+  min-height: 82px;
+  resize: vertical;
+}
+
+.meal-feed-page .field input:focus,
+.meal-feed-page .field textarea:focus,
+.meal-feed-page .comment-form input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+.meal-feed-page .field small {
+  color: var(--color-danger);
+  font-size: 0.78rem;
+  font-weight: 700;
+}

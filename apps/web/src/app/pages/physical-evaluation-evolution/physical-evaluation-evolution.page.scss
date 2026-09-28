@@ -1,0 +1,278 @@
+.evo-page {
+  display: grid;
+  gap: 16px;
+  width: min(100%, 960px);
+  margin: 0 auto;
+  padding: 18px 16px 32px;
+}
+
+/* ─── Tipografia ──────────────────────────────────────────────────────────── */
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1 {
+  color: var(--color-text);
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+h2 {
+  color: var(--color-text);
+  font-size: 1.2rem;
+}
+
+/* ─── Utilitários comuns ─────────────────────────────────────────────────── */
+
+.page-header {
+  display: grid;
+  gap: 14px;
+}
+
+.section-label {
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.back-link {
+  width: fit-content;
+  color: var(--color-text-secondary);
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.panel {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 16px;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(22, 32, 51, 0.05);
+}
+
+.panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.state-message {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 12px;
+  background: #ffffff;
+  color: var(--color-text-secondary);
+  font-weight: 750;
+}
+
+.state-message--loading {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-bg);
+  color: var(--color-primary-dark);
+}
+
+.state-message--error {
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.empty-state {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.muted {
+  color: #9aabb8;
+}
+
+/* ─── Cards de resumo ────────────────────────────────────────────────────── */
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.summary-card {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 14px;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(22, 32, 51, 0.04);
+}
+
+.summary-card__label {
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.summary-card__value {
+  color: var(--color-text);
+  font-size: 1.5rem;
+  font-weight: 900;
+  line-height: 1.1;
+
+  &--empty {
+    color: #9aabb8;
+  }
+}
+
+/* ─── Badge de diferença (cards) ─────────────────────────────────────────── */
+
+.diff-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  font-weight: 850;
+  background: #f1f5f9;
+  color: var(--color-text-secondary);
+
+  &--up {
+    background: #fef2f2;
+    color: #b91c1c;
+  }
+
+  &--down {
+    background: #f0fdf4;
+    color: #15803d;
+  }
+
+  &__vs {
+    font-weight: 700;
+    opacity: 0.7;
+    font-size: 0.68rem;
+  }
+}
+
+/* ─── Gráficos ───────────────────────────────────────────────────────────── */
+
+.charts-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.chart-card {
+  border: 1px solid #eef2f6;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fafbfc;
+}
+
+.chart-card__title {
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  font-weight: 850;
+  margin-bottom: 8px;
+}
+
+/* ─── Tabelas de comparação e histórico ──────────────────────────────────── */
+
+.comparison-dates {
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  font-weight: 750;
+  margin-top: -4px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.comparison-table,
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  white-space: nowrap;
+
+  th {
+    padding: 8px 12px;
+    text-align: left;
+    color: var(--color-text-muted);
+    font-size: 0.72rem;
+    font-weight: 850;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg);
+  }
+
+  td {
+    padding: 9px 12px;
+    color: var(--color-text);
+    font-weight: 750;
+    border-bottom: 1px solid #eef2f6;
+  }
+
+  tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .row-label {
+    font-weight: 850;
+    color: var(--color-text-secondary);
+  }
+}
+
+.history-table .row--current td {
+  background: var(--color-primary-bg);
+  font-weight: 900;
+}
+
+.diff-value {
+  font-weight: 850;
+
+  &--up {
+    color: #b91c1c;
+  }
+
+  &--down {
+    color: #15803d;
+  }
+
+  small {
+    font-size: 0.75em;
+    opacity: 0.8;
+    margin-left: 2px;
+  }
+}
+
+.col-goal {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─── Responsivo ─────────────────────────────────────────────────────────── */
+
+@media (min-width: 600px) {
+  .evo-page {
+    padding: 28px 32px 40px;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .charts-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
